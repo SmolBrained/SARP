@@ -212,6 +212,7 @@ export function TopBar({ state, dispatch, onSound }: { state: AppState; dispatch
             <div ref={moreWrap} className="popover glass menu" role="menu" style={{ top: 52, right: 0, width: 220, padding: 6, display: "grid" }}>
               {[
                 { label: state.tour !== null ? "Exit tour" : "Start the tour", icon: "compass" as const, act: () => dispatch(state.tour !== null ? { type: "endTour" } : { type: "startTour" }) },
+                { label: state.sound ? "Turn sound off" : "Sound: hear the ground", icon: (state.sound ? "sound-on" : "sound-off") as "sound-on" | "sound-off", act: onSound },
                 { label: "Layers", icon: "layers" as const, act: () => dispatch({ type: "setPopover", popover: "layers" }) },
                 { label: "Back to the story", icon: "arrow-left" as const, act: () => window.open(`${BASE}/`, "_self") },
                 { label: "About and the math", icon: "info" as const, act: () => dispatch({ type: "setModal", modal: "about" }) },

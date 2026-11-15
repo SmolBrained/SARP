@@ -293,8 +293,11 @@ export default function MapView({ state, dispatch, pointer, sonifier, leftInset,
         const sc = st.fieldOn && !photoSide ? sceneContaining(lngLat.lat, lngLat.lng) : null;
         const smp = sc && sc.id === sceneOf(st)?.id ? sample(sc, lngLat.lat, lngLat.lng, st.sceneT[sc.id], BANDS[st.band]) : null;
         pointer.set({ x: pt.x, y: pt.y, lat: lngLat.lat, lng: lngLat.lng, scene: smp ? sc : null, sample: smp, pinned });
-        if (smp && sc) sonifier.update(Math.tanh((smp.dLOS / sc.scale) * 1.4), smp.coherence, smp.phase);
-        else sonifier.silence();
+        if (smp && sc) {
+          const v = Math.tanh((smp.dLOS / sc.scale) * 1.4);
+          if (pinned) sonifier.ping(v, smp.coherence); // touch has no hover: each tap plays one note
+          else sonifier.update(v, smp.coherence, smp.phase);
+        } else sonifier.silence();
       };
       m.on("mousemove", (e) => { if (!coarse) read(e.lngLat, e.point, false); });
       m.getCanvas().addEventListener("mouseleave", () => { if (!coarse) { pointer.set(null); sonifier.silence(); } });

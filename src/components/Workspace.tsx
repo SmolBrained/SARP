@@ -165,9 +165,9 @@ export default function Workspace() {
     return () => window.removeEventListener("keydown", onKey);
   }, []);
 
-  const toggleSound = useCallback(() => {
+  const toggleSound = useCallback(async () => {
     if (stateRef.current.sound) { sonifier.stop(); dispatch({ type: "setSound", on: false }); return; }
-    if (!sonifier.start()) { setToast("This browser can't play Web Audio."); return; }
+    if (!(await sonifier.start())) { setToast("Sound could not start. Check the volume and the silent switch, then tap Sound again."); return; }
     dispatch({ type: "setSound", on: true });
     setToast(window.matchMedia("(pointer: coarse)").matches ? "Tap the map: low pitch = sinking, high = rising, clicks = fringes." : "Move over the map: low pitch = sinking, high = rising, clicks = fringes.");
   }, [sonifier]);
@@ -178,7 +178,7 @@ export default function Workspace() {
     const series = timeSeries(sc, h.probe.at, BANDS[st.band], 24);
     const vals = series.map((p) => Math.tanh((((sc.kind === "water" ? (p.value ?? 0) * LOS[2] : p.value) ?? 0) / sc.scale) * 1.4));
     dispatch({ type: "setPlaying", playing: false });
-    void sonifier.melody(vals, (i) => dispatch({ type: "setTime", t: series[i]!.t }));
+    void sonifier.melody(vals, (i) => dispatch({ type: "setTime", t: series[i]!.t })).then((ok) => { if (!ok) setToast("Sound could not start. Check the volume and the silent switch, then try again."); });
   }, [sonifier]);
 
   const onNotice = useCallback((message: string) => setToast(message), []);
@@ -215,7 +215,7 @@ export default function Workspace() {
           {!phone && <PinnedReadout state={state} onClear={() => dispatch({ type: "setProbe", at: null })} />}
           {toast && <Toast message={toast} onClose={() => setToast(null)} />}
         </div>
-        <TopBar state={state} dispatch={dispatch} onSound={toggleSound} />
+        <TopBar state={state} dispatch={dispatch} onSound={() => void toggleSound()} />
         {!phone && <PlaceCard place={state.place} band={state.band} t={t} tour={state.tour} dispatch={dispatch} onMelody={melody} />}
         {!phone && <Dock state={state} dispatch={dispatch} />}
         {state.popover === "read" && <ReadPop band={state.band} water={sc?.kind === "water"} />}
@@ -254,8 +254,8 @@ export default function Workspace() {
               <div className="peek-head">
                 <strong>{h.title}</strong>
                 <Tag status={h.status} />
-                <button className="icon-btn sound-sm" aria-pressed={state.sound} onClick={toggleSound} aria-label={state.sound ? "Turn sound off" : "Hear the ground move"}>
-                  <span className={`bars${state.sound ? " on" : ""}`} aria-hidden="true"><i /><i /><i /><i /></span>
+                <button className="btn sm sound-sm" aria-pressed={state.sound} onClick={() => void toggleSound()} aria-label={state.sound ? "Turn sound off" : "Hear the ground move"}>
+                  <span className={`bars${state.sound ? " on" : ""}`} aria-hidden="true"><i /><i /><i /><i /></span>{state.sound ? "Sound on" : "Sound"}
                 </button>
               </div>
               <Timeline state={state} dispatch={dispatch} />

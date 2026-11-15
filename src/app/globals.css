@@ -438,7 +438,7 @@ h1, h2, h3, p { margin: 0; }
   .sheet .tk-label:not(.edge) { display: none; }
   .sheet .legend-text { white-space: normal; font-size: 14px; line-height: 1.4; flex-basis: 100%; }
   .sheet .peek-head .tag { margin-left: auto; }
-  .sound-sm { flex: none; width: 40px; height: 40px; border: 1px solid var(--line-2); border-radius: 999px; color: var(--text); }
+  .sound-sm { flex: none; height: 40px; padding: 0 14px; gap: 8px; border: 1px solid var(--line-2); border-radius: 999px; color: var(--text); }
   .sound-sm[aria-pressed="true"] { box-shadow: var(--glow); }
   .topleft { right: calc(var(--gap) + 112px); max-width: none; }
   .pill { flex: 1; }

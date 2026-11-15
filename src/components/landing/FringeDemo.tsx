@@ -39,9 +39,12 @@ export function FringeDemo() {
   }, [sound, cm]);
   useEffect(() => () => son.current?.stop(), []);
 
-  const toggleSound = () => {
+  const [soundMsg, setSoundMsg] = useState("");
+  const toggleSound = async () => {
     if (!son.current) son.current = new Sonifier();
-    if (sound) { son.current.stop(); setSound(false); } else if (son.current.start()) { son.current.update(Math.min(1, cm / 30), 1, 0); setSound(true); }
+    if (sound) { son.current.stop(); setSound(false); return; }
+    if (await son.current.start()) { son.current.update(Math.min(1, cm / 30), 1, 0); setSound(true); setSoundMsg(""); }
+    else setSoundMsg("Sound could not start. Check your volume and the silent switch, then tap again.");
   };
 
   return (
@@ -64,7 +67,8 @@ export function FringeDemo() {
           </div>
         </div>
         <p className="lp-demo-read">One colour cycle means <b>{(b.fringe * 100).toFixed(1)} cm</b> of motion at {b.label}. Shorter waves, more cycles.</p>
-        <button className="btn" onClick={toggleSound} aria-pressed={sound}><Icon name={sound ? "sound-on" : "sound-off"} /> {sound ? "Stop the sound" : "Hear it"}</button>
+        <button className="btn" onClick={() => void toggleSound()} aria-pressed={sound}><Icon name={sound ? "sound-on" : "sound-off"} /> {sound ? "Stop the sound" : "Hear it"}</button>
+        {soundMsg && <p className="lp-demo-read" role="status">{soundMsg}</p>}
       </div>
     </div>
   );
