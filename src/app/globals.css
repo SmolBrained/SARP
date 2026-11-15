@@ -24,7 +24,7 @@
   --ok: #3be3a2;
   --model: #c3cde4;
 
-  --sans: "Manrope", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --sans: "Sofia Pro", "Manrope", system-ui, -apple-system, "Segoe UI", sans-serif;
   --display: "Source Serif 4", Georgia, "Times New Roman", serif;
 
   --r-chip: 6px;
@@ -171,7 +171,7 @@ h1, h2, h3, p { margin: 0; }
 @keyframes bars { 0%, 100% { transform: scaleY(0.28); } 50% { transform: scaleY(1); } } /* transform only: composited, no layout per frame */
 
 /* popovers */
-.popover { position: absolute; z-index: 20; animation: pop 220ms var(--ease-out); }
+.popover { position: absolute; z-index: 1000; animation: pop 220ms var(--ease-out); }
 @keyframes pop { from { opacity: 0; transform: translateY(-6px) scale(0.98); } }
 .picker { top: 72px; left: var(--gap); width: min(560px, calc(100vw - 2 * var(--gap))); max-height: calc(100dvh - 120px); display: flex; flex-direction: column; overflow: hidden; }
 .picker-search { display: flex; align-items: center; gap: 10px; margin: 14px 14px 6px; height: 42px; padding: 0 12px; border-radius: var(--r-btn); background: rgba(0, 0, 0, 0.3); border: 1px solid var(--line); color: var(--text-3); }
@@ -457,3 +457,20 @@ h1, h2, h3, p { margin: 0; }
 /* pinned readout (desktop click) */
 .pinned { position: absolute; z-index: 30; left: 50%; top: 18px; transform: translateX(-50%); display: flex; align-items: center; gap: 14px; padding: 10px 10px 10px 16px; border-radius: 14px; font-size: 14px; pointer-events: auto; max-width: min(560px, calc(100% - 2 * var(--gap))); animation: toast-in 280ms var(--ease-out); }
 .pinned-main { display: grid; gap: 2px; }
+
+/* ---------------------------------------------------------------- ASF data panel */
+.asf h3 { margin: 20px 0 8px; }
+.asf-grid { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 10px; }
+.asf-grid li { padding: 12px; border: 1px solid var(--line-2); border-radius: 12px; display: grid; gap: 2px; align-content: start; }
+.asf-grid li.off { opacity: 0.6; }
+.asf-grid b { font-size: 15px; color: var(--text); }
+.asf-grid em { margin-left: 8px; font-style: normal; font-size: 10.5px; letter-spacing: 0.06em; text-transform: uppercase; color: var(--cyan); }
+.asf-grid small { color: var(--text-3); font-size: 12.5px; }
+.asf-grid p { margin: 4px 0 0; font-size: 13.5px; line-height: 1.45; color: var(--text-2); }
+.asf-filters { margin: 0; display: grid; gap: 6px; }
+.asf-filters div { display: grid; grid-template-columns: minmax(110px, 170px) 1fr; gap: 12px; font-size: 14px; }
+.asf-filters dt { color: var(--text); font-weight: 600; }
+.asf-filters dd { margin: 0; color: var(--text-2); }
+.asf-code { padding: 10px 12px; border-radius: 10px; background: rgba(0, 0, 0, 0.3); border: 1px solid var(--line); font-variant-numeric: tabular-nums; overflow-wrap: anywhere; color: var(--text); }
+.asf-note { font-size: 13px; color: var(--text-3); }
+@media (max-width: 767px) { .asf-filters div { grid-template-columns: 1fr; gap: 0; } }

@@ -224,4 +224,4 @@ We used **Claude (Anthropic)** as a coding and research assistant. It fact-check
 **MCP Lead** (Miami Coral Park): **Adrian Gomez** and **Jose Unanue** (Team Owner).
 
 ## License
-MIT. Third-party: MapLibre GL JS (BSD-3), Lucide icon subset (ISC), qrcode-generator (MIT), Manrope and Source Serif 4 (SIL OFL 1.1), MathJax (Apache-2.0, build time only), Natural Earth (public domain). Map data © OpenStreetMap contributors via OpenFreeMap (no API key); imagery © Esri, Maxar, Earthstar Geographics; NASA GIBS imagery courtesy NASA ESDIS.
+MIT. Third-party: MapLibre GL JS (BSD-3), Lucide icon subset (ISC), qrcode-generator (MIT), Source Serif 4 and Manrope (SIL OFL 1.1). The interface font Sofia Pro is licensed and is not in this repository: put your licensed `sofia-pro-{300,400,500,600,700}.woff2` files in `public/fonts/sofia/` to use it, otherwise the site falls back to the bundled Manrope, MathJax (Apache-2.0, build time only), Natural Earth (public domain). Map data © OpenStreetMap contributors via OpenFreeMap (no API key); imagery © Esri, Maxar, Earthstar Geographics; NASA GIBS imagery courtesy NASA ESDIS.

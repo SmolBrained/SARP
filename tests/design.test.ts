@@ -11,11 +11,10 @@ const fonts = readFileSync("src/app/fonts.css", "utf8");
 const landing = readFileSync("src/styles/landing.css", "utf8");
 
 describe("design guardrails", () => {
-  it("ships exactly two font families, each with Latin and Greek", () => {
+  it("uses Sofia Pro and Source Serif 4, with Manrope only as the bundled fallback", () => {
     const fam = [...fonts.matchAll(/font-family: "([^"]+)"/g)].map((m) => m[1]);
-    expect([...new Set(fam)].sort()).toEqual(["Manrope", "Source Serif 4"]);
-    expect(fam).toHaveLength(4);
-    expect(css).not.toMatch(/font-family:\s*"(?!Manrope|Source Serif 4)[A-Z]/);
+    expect([...new Set(fam)].sort()).toEqual(["Manrope", "Sofia Pro", "Source Serif 4"]);
+    expect(css).not.toMatch(/font-family:\s*"(?!Sofia Pro|Manrope|Source Serif 4)[A-Z]/);
   });
   it("keeps the home page free of gradient text and glows", () => {
     expect(landing).not.toMatch(/background-clip:\s*text/);

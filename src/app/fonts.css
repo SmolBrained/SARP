@@ -12,3 +12,16 @@
 @font-face { font-family: "Source Serif 4"; font-style: normal; font-weight: 200 900; font-display: swap;
   src: url("../fonts/source-serif-4-greek-wght-normal.woff2") format("woff2");
   unicode-range: U+0370-0377, U+037A-037F, U+0384-038A, U+038C, U+038E-03A1, U+03A3-03FF; }
+
+/* Sofia Pro: licensed, so the files live in public/fonts/sofia and are NOT committed (see .gitignore). Without
+   them the browser falls back to Manrope, which is always bundled. */
+@font-face { font-family: "Sofia Pro"; font-style: normal; font-weight: 300; font-display: swap;
+  src: url("/fonts/sofia/sofia-pro-300.woff2") format("woff2"); }
+@font-face { font-family: "Sofia Pro"; font-style: normal; font-weight: 400; font-display: swap;
+  src: url("/fonts/sofia/sofia-pro-400.woff2") format("woff2"); }
+@font-face { font-family: "Sofia Pro"; font-style: normal; font-weight: 500; font-display: swap;
+  src: url("/fonts/sofia/sofia-pro-500.woff2") format("woff2"); }
+@font-face { font-family: "Sofia Pro"; font-style: normal; font-weight: 600; font-display: swap;
+  src: url("/fonts/sofia/sofia-pro-600.woff2") format("woff2"); }
+@font-face { font-family: "Sofia Pro"; font-style: normal; font-weight: 700; font-display: swap;
+  src: url("/fonts/sofia/sofia-pro-700.woff2") format("woff2"); }

@@ -34,7 +34,7 @@ Web research on what makes an interface read as AI-generated turned up a consist
 
 | Tell | What replaced it |
 | --- | --- |
-| Monospace for numbers; a different font in every corner | Exactly two families, both SIL OFL and self-hosted in Latin plus Greek (needed for λ, φ, Δ, θ): Manrope for all interface text and Source Serif 4 for headlines and the one large number on a card. A test fails the build if a third family appears. Numbers use the fonts' tabular figures. |
+| Monospace for numbers; a different font in every corner | Exactly two families, both SIL OFL and self-hosted in Latin plus Greek (needed for λ, φ, Δ, θ): Sofia Pro (licensed, loaded from public/fonts/sofia, with Manrope as the bundled fallback) for all interface text and Source Serif 4 for headlines and the one large number on a card. A test fails the build if a third family appears. Numbers use the fonts' tabular figures. |
 | Gradient headline text, glowing rings | Solid colour only. Marker ring animation runs on the selected marker only. |
 | Heavy translucent glass everywhere | A single flat, mostly opaque surface token; blur is kept only over the map where it helps legibility. |
 | Cards around every metric | Key/value rows with hairline dividers (kept from v2). |

@@ -10,3 +10,6 @@ __pycache__/
 raw_data/
 .firebase/
 *.log
+
+# licensed font files
+public/fonts/sofia/
