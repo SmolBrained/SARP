@@ -54,6 +54,14 @@ function pump(): void {
   if (pending) setTimeout(pump, 0);
 }
 
-self.onmessage = (e: MessageEvent<FrameRequest>) => { pending = e.data; pump(); };
+self.onmessage = (e: MessageEvent<FrameRequest | { warm: SceneId }>) => {
+  const d = e.data;
+  if ("warm" in d) { // get a scene ready ahead of time; never delays a real request for long (one scene at a time)
+    if (!prepared.has(d.warm)) { try { prepared.set(d.warm, prepare(d.warm)); } catch { /* the real request will report it */ } }
+    pump();
+    return;
+  }
+  pending = d; pump();
+};
 
 export {};

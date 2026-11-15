@@ -13,7 +13,7 @@ import type * as ML from "maplibre-gl";
 import type { FeatureCollection, Point } from "geojson";
 import { HOTSPOTS, HOTSPOT_BY_ID, LIVE_LAYERS, LIVE_LAYER_IDS, type LiveLayerId } from "@/lib/content";
 import { BANDS } from "@/lib/physics";
-import { SCENES, sample, sceneContaining, type Sample, type Scene, type SceneId } from "@/lib/scenes";
+import { SCENES, SCENE_IDS, sample, sceneContaining, type Sample, type Scene, type SceneId } from "@/lib/scenes";
 import { findLatest, tileTemplate } from "@/lib/gibs";
 import { addOfflineLand } from "@/lib/offlineLand";
 import { DATA_ANCHOR, IMAGERY_TILES, PALETTE, buildStyle } from "@/lib/mapStyle";
@@ -132,17 +132,17 @@ export default function MapView({ state, dispatch, pointer, sonifier, leftInset,
     pumpFrame();
   }, [pumpFrame]);
 
-  const startReveal = useCallback(() => {
+  const startReveal = useCallback((early = false) => {
     const r = reveal.current;
     cancelAnimationFrame(r.raf);
     const sc = sceneOf(stateRef.current);
-    if (r.amount >= 1 || !sc?.raster || !stateRef.current.fieldOn) { r.amount = 1; pushFrame(); arriveRef.current?.(); return; }
+    if (r.amount >= 1 || !sc?.raster || !stateRef.current.fieldOn) { r.amount = 1; pushFrame(); if (!early) arriveRef.current?.(); return; }
     const t0 = performance.now();
     const tick = (now: number) => {
       const p = Math.min(1, (now - t0) / REVEAL_MS);
       r.amount = p >= 1 ? 1 : 1 - Math.pow(1 - p, 3); // ease-out cubic
       pushFrame();
-      if (p < 1) r.raf = requestAnimationFrame(tick); else arriveRef.current?.();
+      if (p < 1) r.raf = requestAnimationFrame(tick); else if (!early) arriveRef.current?.();
     };
     r.raf = requestAnimationFrame(tick);
   }, [pushFrame]);
@@ -316,6 +316,8 @@ export default function MapView({ state, dispatch, pointer, sonifier, leftInset,
       const w = new Worker(new URL("../workers/field.worker.ts", import.meta.url), { type: "module" });
       w.onmessage = (ev: MessageEvent<FrameResponse>) => onFrame(ev.data);
       worker.current = w;
+      // pay each scene's one-off set-up now, in the background, so no place waits for it when you arrive
+      SCENE_IDS.forEach((id, i) => { if (SCENES[id].raster) setTimeout(() => worker.current?.postMessage({ warm: id }), 400 + i * 700); });
 
       // measured OPERA velocities (optional, produced by the Python pipeline)
       try {
@@ -413,21 +415,34 @@ export default function MapView({ state, dispatch, pointer, sonifier, leftInset,
     const m = map.current;
     if (!ready || !m || state.intro) return;
     const h = HOTSPOT_BY_ID[state.place]!;
+    const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    const far = m.getZoom() < 4;
+    const dur = reduce ? 0 : far ? 4500 : 2400;
+    let early = false, done = false;
+    const timers: number[] = [];
+    // The radar picture must never depend on one event: it starts developing while the camera is still arriving,
+    // and a backstop covers a flight that ends without a moveend (cancelled, or already in place).
     const refresh = () => {
-      startReveal();
+      if (done) return;
+      done = true;
+      timers.forEach((t) => clearTimeout(t));
+      if (early) { cancelAnimationFrame(reveal.current.raf); reveal.current.amount = 1; pushFrame(); arriveRef.current?.(); }
+      else startReveal(false);
       const st = stateRef.current;
       for (const id of LIVE_LAYER_IDS) if (st.live[id].status === "ready" || st.live[id].status === "none") dispatch({ type: "setLive", id, status: "searching" });
       if (h.liveDefault && st.live[h.liveDefault].status === "off") dispatch({ type: "setLive", id: h.liveDefault, status: "searching" });
     };
-    const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-    const far = m.getZoom() < 4;
+    if (dur > 0) {
+      timers.push(window.setTimeout(() => { if (!done) { early = true; startReveal(true); } }, dur * 0.55));
+      timers.push(window.setTimeout(refresh, dur + 2500));
+    }
     m.once("moveend", refresh);
     const cam = CAMERA[h.id] ?? { pitch: 0, bearing: 0 };
     cancelAnimationFrame(reveal.current.raf); // a still-running reveal of the previous place must not touch this one
-    reveal.current.amount = reduce ? 1 : 0; // the field "develops" once the camera arrives
+    reveal.current.amount = reduce ? 1 : 0; // the field "develops" as the camera arrives
     pushFrame();
-    m.flyTo({ center: [h.center[1], h.center[0]], zoom: Z(h.zoom), padding: padding(), bearing: cam.bearing, pitch: cam.pitch, duration: reduce ? 0 : far ? 4500 : 2400, curve: far ? 1.6 : 1.42, essential: true });
-    return () => { m.off("moveend", refresh); };
+    m.flyTo({ center: [h.center[1], h.center[0]], zoom: Z(h.zoom), padding: padding(), bearing: cam.bearing, pitch: cam.pitch, duration: dur, curve: far ? 1.6 : 1.42, essential: true });
+    return () => { m.off("moveend", refresh); timers.forEach((t) => clearTimeout(t)); };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [state.flyToken, ready, state.intro]);
 
