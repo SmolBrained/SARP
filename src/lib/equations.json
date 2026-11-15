@@ -1,0 +1,50 @@
+[
+  {
+    "id": "phase",
+    "title": "Phase to motion",
+    "tex": "d_{\\mathrm{LOS}} = \\frac{\\lambda}{4\\pi}\\,\\Delta\\phi",
+    "note": "Phase change between two passes gives motion along the line of sight, positive toward the satellite."
+  },
+  {
+    "id": "fringe",
+    "title": "One colour cycle",
+    "tex": "d_{2\\pi} = \\frac{\\lambda}{2}",
+    "note": "Each full colour cycle is half a wavelength of motion."
+  },
+  {
+    "id": "wavelength",
+    "title": "Wavelength",
+    "tex": "\\lambda = \\frac{c}{f}",
+    "note": "NISAR L-band: f = 1.257 GHz, so λ ≈ 23.8 cm."
+  },
+  {
+    "id": "wetland",
+    "title": "Wetland double bounce",
+    "tex": "d_{\\mathrm{LOS}} = \\tfrac{1}{2}\\left(2\\,\\Delta h\\cos\\theta\\right) = \\Delta h\\cos\\theta \\;\\Rightarrow\\; \\Delta h_{2\\pi} = \\frac{\\lambda}{2\\cos\\theta} \\approx 14.9\\ \\text{cm}",
+    "note": "Water, then stem, then back: the two-way path changes by 2Δh·cosθ, half of which is the equivalent line-of-sight motion (θ ≈ 37°)."
+  },
+  {
+    "id": "mogi",
+    "title": "Volcanic source (Mogi)",
+    "tex": "u_z(r) = \\frac{(1-\\nu)\\,\\Delta V}{\\pi}\\,\\frac{d}{\\left(r^2+d^2\\right)^{3/2}}",
+    "note": "Uplift above a pressurised source at depth d (ν = 0.25)."
+  },
+  {
+    "id": "creep",
+    "title": "Building settlement (creep)",
+    "tex": "s(t) = v_0\\,\\tau\\left(1-e^{-t/\\tau}\\right)",
+    "note": "Fast at first, slowing as the sand layers compact."
+  },
+  {
+    "id": "tide",
+    "title": "Ice-shelf tidal flexure",
+    "tex": "w(x) = A\\left[1-e^{-x/\\ell}\\left(\\cos\\frac{x}{\\ell}+\\sin\\frac{x}{\\ell}\\right)\\right]",
+    "note": "Elastic beam bending across the grounding line."
+  },
+  {
+    "id": "noise",
+    "title": "Phase noise from coherence",
+    "tex": "\\sigma_\\phi = \\sqrt{\\frac{1-\\gamma^2}{2L\\gamma^2}}",
+    "note": "Cramér–Rao bound for L looks at coherence γ."
+  }
+]
