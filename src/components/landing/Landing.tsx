@@ -13,7 +13,10 @@ import { CapsuleNav } from "./CapsuleNav";
 import { FringeDemo } from "./FringeDemo";
 import { AsfPanel } from "../AsfPanel";
 import { HearButtons } from "./HearButtons";
+import { Starfield } from "../Starfield";
 import { GlobeStage } from "./GlobeStage";
+import { FrameStage } from "./FrameStage";
+import type { Manifest } from "@/lib/framePath";
 
 const BASE = process.env.NEXT_PUBLIC_BASE_PATH ?? "";
 const REPO = "https://github.com/SmolBrained/SARP";
@@ -24,6 +27,18 @@ function Go({ id, children }: { id: string; children: React.ReactNode }) {
 
 export default function Landing() {
   const [active, setActive] = useState<ChapterId>("top");
+  // Pre-rendered pictures when they exist (npm run frames), the live 3D globe when they do not
+  const [stage, setStage] = useState<{ mode: "probing" } | { mode: "live" } | { mode: "frames"; manifest: Manifest; variant: "desktop" | "mobile" }>({ mode: "probing" });
+  useEffect(() => {
+    const variant = window.innerWidth < 961 ? "mobile" : "desktop";
+    const capture = new URLSearchParams(window.location.search).has("capture"); // the capture script needs the live map
+    let dead = false;
+    (capture ? Promise.reject(new Error("capture")) : fetch(`${BASE}/frames/${variant}/manifest.json`))
+      .then((r) => (r.ok ? (r.json() as Promise<Manifest>) : Promise.reject(new Error("no frames"))))
+      .then((manifest) => { if (!dead && manifest.v === 1 && manifest.count > 0) setStage({ mode: "frames", manifest, variant }); else if (!dead) setStage({ mode: "live" }); })
+      .catch(() => { if (!dead) setStage({ mode: "live" }); });
+    return () => { dead = true; };
+  }, []);
   const [scrolled, setScrolled] = useState(false);
   const root = useRef<HTMLDivElement>(null);
 
@@ -46,7 +61,9 @@ export default function Landing() {
 
   return (
     <div ref={root} className="lp" id="top">
-      <GlobeStage chapter={active} />
+      {stage.mode === "live" && <Starfield />}
+      {stage.mode === "live" && <GlobeStage chapter={active} />}
+      {stage.mode === "frames" && <FrameStage chapter={active} manifest={stage.manifest} variant={stage.variant} />}
       <div className="lp-shade" aria-hidden="true" />
       <CapsuleNav shown={scrolled} active={active} />
 
@@ -60,6 +77,13 @@ export default function Landing() {
             <a className="btn primary lg" href={`${BASE}/explore/`}>Open the viewer <Icon name="arrow-right" /></a>
             <a className="btn lg" href="#why">Scroll the story</a>
           </div>
+          <dl className="lp-orbit" aria-label="The NISAR satellite">
+            <div><dt>Orbit</dt><dd>747 km</dd></div>
+            <div><dt>Swath</dt><dd>242 km</dd></div>
+            <div><dt>Repeat</dt><dd>12 days</dd></div>
+            <div><dt>L-band</dt><dd>24 cm</dd></div>
+            <div><dt>S-band</dt><dd>9.4 cm</dd></div>
+          </dl>
         </div>
         <a className="lp-scroll" href="#why" aria-label="Scroll to the story"><span /></a>
       </header>

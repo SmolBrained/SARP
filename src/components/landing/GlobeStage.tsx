@@ -10,9 +10,10 @@ import type * as ML from "maplibre-gl";
 import "@/styles/maplibre.css";
 import VENDOR from "@/lib/vendor.json";
 import { buildStyle } from "@/lib/mapStyle";
-import { nisarTrack } from "@/lib/orbit";
+import { closestProgress, nisarTrack } from "@/lib/orbit";
 import { offlineFallback } from "@/lib/offlineLand";
 import { HOTSPOTS } from "@/lib/content";
+import { paddingFor, timeline } from "@/lib/framePath";
 import { CAMERAS, TERRAIN_CHAPTERS, type Cam, type ChapterId } from "./chapters";
 
 const BASE = process.env.NEXT_PUBLIC_BASE_PATH ?? "";
@@ -42,6 +43,7 @@ export function GlobeStage({ chapter, onReady }: { chapter: ChapterId; onReady?:
 
   useEffect(() => {
     let disposed = false, raf = 0;
+    const capture = new URLSearchParams(window.location.search).has("capture"); // scripts/capture-frames.mjs drives the camera itself
     void (async () => {
       const lf = (await import(/* webpackIgnore: true */ /* turbopackIgnore: true */ `${BASE}${VENDOR.maplibre}`)) as typeof ML;
       if (disposed || !box.current) return;
@@ -50,7 +52,7 @@ export function GlobeStage({ chapter, onReady }: { chapter: ChapterId; onReady?:
       try {
         m = new lf.Map({
           container: box.current, style: buildStyle(), center: [...c0.center], zoom: c0.zoom, pitch: 0, bearing: 0,
-          interactive: false, pixelRatio: Math.min(window.devicePixelRatio || 1, 1.5), attributionControl: { compact: true }, fadeDuration: 150, maxPitch: 70,
+          interactive: false, pixelRatio: Math.min(window.devicePixelRatio || 1, 1.5), fadeDuration: capture ? 0 : 150, maxPitch: 70, attributionControl: capture ? false : { compact: true },
         });
       } catch { setNoGl(true); return; } // no WebGL (blocked, or a software renderer): show pictures instead of a blank page
       map.current = m;
@@ -65,16 +67,31 @@ export function GlobeStage({ chapter, onReady }: { chapter: ChapterId; onReady?:
         m.addSource("track", { type: "geojson", lineMetrics: true, data: feat() });
         m.addLayer({ id: "track-swath", type: "line", source: "track", layout: { "line-cap": "round" }, paint: { "line-width": 34, "line-blur": 14, "line-gradient": gradient(0, 0.16) } });
         m.addLayer({ id: "track-line", type: "line", source: "track", layout: { "line-cap": "round" }, paint: { "line-width": 1.6, "line-gradient": gradient(0, 0.9) } });
+        const stars = (): void => document.documentElement.style.setProperty("--stars", m.getZoom() < 5.5 ? "1" : "0");
+        m.on("zoomend", stars); stars();
+        const pins: { id: string; el: HTMLElement; p: number }[] = [];
         for (const h of HOTSPOTS) {
           const e = document.createElement("span");
           e.className = "lp-pin";
           new lf.Marker({ element: e, anchor: "center", opacityWhenCovered: "0" }).setLngLat([h.center[1], h.center[0]]).addTo(m);
+          pins.push({ id: h.id, el: e, p: closestProgress(track, h.center[0], h.center[1]) });
         }
         const c = CAMERAS[cur.current];
         if (cur.current !== "top") m.jumpTo({ center: [...c.center] as [number, number], zoom: c.zoom, pitch: c.pitch, bearing: c.bearing, padding: padFor(c.side) }); // scrolled before the globe was ready
         onReady?.();
+        if (capture) {
+          // scripts/capture-frames.mjs drives the camera and the sweep itself, one picture at a time
+          const sweep = (p: number): void => {
+            const fade = Math.max(0, 1 - Math.max(0, p - 1) * 4.5);
+            m.setPaintProperty("track-line", "line-gradient", gradient(Math.min(1, p), 0.9 * fade));
+            m.setPaintProperty("track-swath", "line-gradient", gradient(Math.min(1, p), 0.16 * fade));
+          };
+          (window as unknown as { __sarp?: unknown }).__sarp = { map: m, timeline: timeline(), paddingFor, sweep };
+          return;
+        }
         if (reduced()) return;
         const SWEEP = 3200, GAP = 1600;
+        const pinged = new Set<string>();
         let last = 0, t0 = 0;
         const frame = (ts: number) => {
           raf = requestAnimationFrame(frame);
@@ -87,8 +104,10 @@ export function GlobeStage({ chapter, onReady }: { chapter: ChapterId; onReady?:
             const p = Math.min(1.22, k), fade = Math.max(0, 1 - Math.max(0, p - 1) * 4.5);
             m.setPaintProperty("track-line", "line-gradient", gradient(Math.min(1, p), 0.9 * fade));
             m.setPaintProperty("track-swath", "line-gradient", gradient(Math.min(1, p), 0.16 * fade));
+            for (const q of pins) if (!pinged.has(q.id) && p >= q.p) { pinged.add(q.id); q.el.classList.remove("ping"); void q.el.offsetWidth; q.el.classList.add("ping"); } // each place pings as the swath passes
           } else if (ts - t0 > SWEEP * 1.25 + GAP) {
-            lng0 -= 24.3; track = nisarTrack(lng0); t0 = ts;
+            lng0 -= 24.3; track = nisarTrack(lng0); t0 = ts; pinged.clear();
+            for (const q of pins) { const h = HOTSPOTS.find((x) => x.id === q.id)!; q.p = closestProgress(track, h.center[0], h.center[1]); }
             (m.getSource("track") as ML.GeoJSONSource | undefined)?.setData(feat());
           }
         };
@@ -100,7 +119,7 @@ export function GlobeStage({ chapter, onReady }: { chapter: ChapterId; onReady?:
 
   useEffect(() => {
     const m = map.current;
-    if (!m) return;
+    if (!m || new URLSearchParams(window.location.search).has("capture")) return;
     const c = CAMERAS[chapter];
     spin.current = chapter === "top";
     const lift = () => { try { m.setTerrain(TERRAIN_CHAPTERS.has(chapter) ? { source: "dem", exaggeration: 1.7 } : null); } catch { /* terrain is a bonus: stay flat if this build or device cannot do it */ } };

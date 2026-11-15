@@ -63,3 +63,21 @@ describe("prefetch covers the home-page scroll", () => {
     }
   });
 });
+
+import { LEG_FRAMES, legCam, paddingFor, timeline } from "@/lib/framePath";
+describe("frame timeline", () => {
+  it("has one still per chapter plus a flight between each pair, anchors in order", () => {
+    const t = timeline();
+    expect(t.cams).toHaveLength(CHAPTER_IDS.length + (CHAPTER_IDS.length - 1) * LEG_FRAMES);
+    const a = CHAPTER_IDS.map((id) => t.anchors[id]);
+    expect([...a].sort((x, y) => x - y)).toEqual(a);
+  });
+  it("flies the short way round the planet and lands on the target", () => {
+    const m = legCam({ side: "left", center: [170, 0], zoom: 2, pitch: 0, bearing: 0 }, { side: "left", center: [-170, 0], zoom: 2, pitch: 0, bearing: 0 }, 0.5);
+    expect(Math.abs(m.center[0])).toBeGreaterThan(175);
+  });
+  it("blends the card-side padding", () => {
+    expect(paddingFor("left", "right", 0.5, 1200, 800).left).toBe(Math.round(528 / 2));
+    expect(paddingFor("left", "left", 1, 600, 800).bottom).toBe(400);
+  });
+});

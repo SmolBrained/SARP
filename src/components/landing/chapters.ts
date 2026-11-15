@@ -17,7 +17,7 @@ export const CHAPTER_IDS = ["top", "why", "math", "miami", "everglades", "icelan
 export type ChapterId = (typeof CHAPTER_IDS)[number];
 
 export const CAMERAS: Readonly<Record<ChapterId, Cam>> = {
-  top: { side: "left", center: [-60, 15], zoom: 1.9, pitch: 0, bearing: 0 },
+  top: { side: "left", center: [-62, 12], zoom: 2.15, pitch: 0, bearing: 0 },
   why: { side: "left", center: [-80, 26], zoom: 3.1, pitch: 0, bearing: 0 },
   math: { side: "center", center: [-80.2, 25.8], zoom: 7.2, pitch: 0, bearing: 0 },
   miami: at("miami-coast", "left", -0.2, 60, -24),

@@ -18,7 +18,9 @@
     "deploy": "npm run build && npx --yes firebase-tools@15 deploy --only hosting",
     "math": "node scripts/build-math.mjs",
     "vendor": "node scripts/vendor.mjs",
-    "check:math": "node scripts/check-math.mjs README.md docs"
+    "check:math": "node scripts/check-math.mjs README.md docs",
+    "frames": "npm run build && node scripts/capture-frames.mjs",
+    "ship": "npm run build && node scripts/capture-frames.mjs && npm run deploy"
   },
   "engines": {
     "node": ">=20.9"
@@ -37,6 +39,7 @@
     "eslint-config-next": "^16.4.6",
     "maplibre-gl": "^6.18.0",
     "mathjax-full": "^3.2.1",
+    "playwright": "^1.65.1",
     "typescript": "^5.9.3",
     "vitest": "^5.1.0"
   },

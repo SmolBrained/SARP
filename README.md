@@ -184,6 +184,19 @@ pipeline/
 
 Performance choices: a fully **static export** (any CDN; no server). Radar fields are **separable in time**, so each frame is a few multiply-adds per pixel in a **Web Worker**, handed to the GPU as an `ImageBitmap` and uploaded once per frame. Map work never re-renders React (the cursor readout subscribes to its own store). The chart is dependency-free SVG, icons are ~20 inline SVGs, and MapLibre loads lazily from our own origin only when the map mounts.
 
+## Pre-rendered home-page globe
+
+The scrolling globe on the home page is the same flight for every visitor, so it is rendered once and played back as pictures instead of being drawn live in each browser (no map tiles to wait for, no WebGL load).
+
+```bash
+npm i && npx playwright install chromium   # once
+npm run frames                              # build, then render public/frames/desktop and public/frames/mobile (a few minutes, needs internet)
+npm run deploy                              # publish
+```
+
+Windows: double-click `ship-windows.cmd` to do all of it, including signing in to Firebase.
+If `public/frames` does not exist the page draws the live 3D globe instead, so nothing breaks. Camera positions live in `src/lib/framePath.ts`.
+
 ## Quick start
 
 **Windows, one click:** double-click `setup-windows.cmd`. It installs uv, Python 3.12 and Node.js LTS (only if missing), runs every test, optionally fetches the real NASA data, and opens the site.
