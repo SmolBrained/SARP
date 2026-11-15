@@ -132,3 +132,4 @@ html:has(.lp) { scroll-behavior: smooth; }
 /* A blur over a WebGL globe that moves is the costliest thing on this page: use a solid panel instead. */
 .lp .glass, .lp .lp-nav { -webkit-backdrop-filter: none; backdrop-filter: none; }
 .lp .glass { background: rgba(10, 14, 28, 0.94); }
+.lp-globe.nogl { background-size: cover; background-position: center; opacity: 0.55; transition: background-image 600ms; }

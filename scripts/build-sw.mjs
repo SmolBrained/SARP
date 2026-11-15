@@ -27,7 +27,7 @@ const TILE_LIMIT = 4000;
 // tile and glyph files never change under their URL; TileJSON (e.g. /planet) points at the current tile version, so it must stay fresh
 const IMMUTABLE = /(\\/\\d+\\/\\d+\\/\\d+(\\.[a-z]+)?$|\\/\\d+-\\d+\\.pbf$|\\/tile\\/\\d+\\/\\d+\\/\\d+$)/;
 const PRECACHE = ${JSON.stringify(urls)};
-const TILE_HOSTS = /(server\\.arcgisonline\\.com|tiles\\.openfreemap\\.org|gibs(-[abc])?\\.earthdata\\.nasa\\.gov)$/;
+const TILE_HOSTS = /(elevation-tiles-prod\\.s3\\.amazonaws\\.com|server\\.arcgisonline\\.com|tiles\\.openfreemap\\.org|gibs(-[abc])?\\.earthdata\\.nasa\\.gov)$/;
 
 self.addEventListener("install", (e) => e.waitUntil(caches.open(VERSION).then((c) => c.addAll(PRECACHE)).then(() => self.skipWaiting())));
 self.addEventListener("activate", (e) => e.waitUntil(

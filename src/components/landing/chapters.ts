@@ -10,6 +10,9 @@ const at = (id: string, side: Side, dz = 0, pitch = 0, bearing = 0): Cam => {
   return { side, center: [h.center[1], h.center[0]], zoom: h.zoom - 1 + dz, pitch, bearing };
 };
 
+/** Chapters whose ground is lifted into real 3D terrain (a volcano, not a flat swamp). */
+export const TERRAIN_CHAPTERS: ReadonlySet<string> = new Set(["iceland", "hear"]);
+
 export const CHAPTER_IDS = ["top", "why", "math", "miami", "everglades", "iceland", "world", "hear", "act", "data", "guide", "honest"] as const;
 export type ChapterId = (typeof CHAPTER_IDS)[number];
 
@@ -17,12 +20,12 @@ export const CAMERAS: Readonly<Record<ChapterId, Cam>> = {
   top: { side: "left", center: [-60, 15], zoom: 1.9, pitch: 0, bearing: 0 },
   why: { side: "left", center: [-80, 26], zoom: 3.1, pitch: 0, bearing: 0 },
   math: { side: "center", center: [-80.2, 25.8], zoom: 7.2, pitch: 0, bearing: 0 },
-  miami: at("miami-coast", "left", -2.2, 58, -24),
+  miami: at("miami-coast", "left", -0.2, 60, -24),
   everglades: at("everglades", "right", -0.4, 0, 0),
   iceland: at("iceland", "left", -0.4, 52, -16),
   world: { side: "right", center: [-75, -20], zoom: 1.9, pitch: 0, bearing: 0 },
   hear: at("iceland", "right", -1.2, 30, 40),
-  act: at("miami-coast", "center", -2.6, 40, 20),
+  act: at("miami-coast", "center", -0.9, 55, 25),
   data: { side: "center", center: [-100, 30], zoom: 1.7, pitch: 0, bearing: 0 },
   guide: { side: "center", center: [-50, 25], zoom: 1.5, pitch: 0, bearing: 0 },
   honest: { side: "left", center: [-80.12, 25.9], zoom: 9.2, pitch: 40, bearing: 20 },

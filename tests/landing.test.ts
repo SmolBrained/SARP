@@ -31,7 +31,7 @@ describe("tile prefetch maths", () => {
   it("lists the whole globe at low zoom and a block around a place", () => {
     expect(worldTiles(2)).toHaveLength(1 + 4 + 16);
     expect(placeTiles(25.76, -80.19, 5, 5)).toHaveLength(9);
-    expect(placeTiles(25.76, -80.19, 12, 12)).toHaveLength(1);
+    expect(placeTiles(25.76, -80.19, 12, 12)).toHaveLength(9);
   });
 });
 

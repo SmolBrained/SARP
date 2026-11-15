@@ -4,7 +4,8 @@
  * there; at the very top the Earth turns slowly and a NISAR ground track sweeps across it. Tiles are the
  * same OpenFreeMap + Natural Earth basemap as the viewer, so the service-worker cache is shared.
  */
-import { useEffect, useRef } from "react";
+import { DEM_TILES } from "@/lib/prefetch";
+import { useEffect, useRef, useState } from "react";
 import type * as ML from "maplibre-gl";
 import "@/styles/maplibre.css";
 import VENDOR from "@/lib/vendor.json";
@@ -12,7 +13,7 @@ import { buildStyle } from "@/lib/mapStyle";
 import { nisarTrack } from "@/lib/orbit";
 import { offlineFallback } from "@/lib/offlineLand";
 import { HOTSPOTS } from "@/lib/content";
-import { CAMERAS, type Cam, type ChapterId } from "./chapters";
+import { CAMERAS, TERRAIN_CHAPTERS, type Cam, type ChapterId } from "./chapters";
 
 const BASE = process.env.NEXT_PUBLIC_BASE_PATH ?? "";
 /** Free space beside the text card: left/right on wide screens, above the card on narrow ones. */
@@ -35,6 +36,8 @@ export function GlobeStage({ chapter, onReady }: { chapter: ChapterId; onReady?:
   const map = useRef<ML.Map | null>(null);
   const cur = useRef<ChapterId>(chapter);
   const spin = useRef(true);
+  const [noGl, setNoGl] = useState(false);
+  const [ready, setReady] = useState(false);
   useEffect(() => { cur.current = chapter; }, [chapter]);
 
   useEffect(() => {
@@ -43,15 +46,20 @@ export function GlobeStage({ chapter, onReady }: { chapter: ChapterId; onReady?:
       const lf = (await import(/* webpackIgnore: true */ /* turbopackIgnore: true */ `${BASE}${VENDOR.maplibre}`)) as typeof ML;
       if (disposed || !box.current) return;
       const c0 = CAMERAS.top;
-      const m = new lf.Map({
-        container: box.current, style: buildStyle(), center: [...c0.center], zoom: c0.zoom, pitch: 0, bearing: 0,
-        interactive: false, pixelRatio: Math.min(window.devicePixelRatio || 1, 1.5), attributionControl: { compact: true }, fadeDuration: 150, maxPitch: 70,
-      });
+      let m: ML.Map;
+      try {
+        m = new lf.Map({
+          container: box.current, style: buildStyle(), center: [...c0.center], zoom: c0.zoom, pitch: 0, bearing: 0,
+          interactive: false, pixelRatio: Math.min(window.devicePixelRatio || 1, 1.5), attributionControl: { compact: true }, fadeDuration: 150, maxPitch: 70,
+        });
+      } catch { setNoGl(true); return; } // no WebGL (blocked, or a software renderer): show pictures instead of a blank page
       map.current = m;
       m.setPadding(padFor(c0.side));
       offlineFallback(m);
       m.on("load", () => {
         if (disposed) return;
+        m.addSource("dem", { type: "raster-dem", tiles: [DEM_TILES], tileSize: 256, maxzoom: 12, encoding: "terrarium" });
+        setReady(true);
         let lng0 = -74, track = nisarTrack(lng0);
         const feat = (): GeoJSON.Feature => ({ type: "Feature", properties: {}, geometry: { type: "LineString", coordinates: track.coords } });
         m.addSource("track", { type: "geojson", lineMetrics: true, data: feat() });
@@ -95,13 +103,16 @@ export function GlobeStage({ chapter, onReady }: { chapter: ChapterId; onReady?:
     if (!m) return;
     const c = CAMERAS[chapter];
     spin.current = chapter === "top";
+    const lift = () => { try { m.setTerrain(TERRAIN_CHAPTERS.has(chapter) ? { source: "dem", exaggeration: 1.7 } : null); } catch { /* terrain is a bonus: stay flat if this build or device cannot do it */ } };
     const go = () => {
+      lift();
       const opts = { center: [...c.center] as [number, number], zoom: c.zoom, pitch: c.pitch, bearing: c.bearing, padding: padFor(c.side) };
       if (reduced()) m.jumpTo(opts);
       else m.flyTo({ ...opts, duration: 3200, curve: 1.5, essential: true });
     };
     if (m.loaded() || m.isStyleLoaded()) go(); else m.once("load", go);
-  }, [chapter]);
+  }, [chapter, ready]);
 
-  return <div ref={box} className="lp-globe" data-ch={chapter} aria-hidden="true" />;
+  const poster = `${BASE}/img/${chapter === "miami" || chapter === "act" || chapter === "honest" ? "miami" : chapter === "everglades" ? "everglades" : chapter === "iceland" || chapter === "hear" ? "iceland" : "globe"}.jpg`;
+  return <div ref={box} className={`lp-globe${noGl ? " nogl" : ""}`} data-ch={chapter} aria-hidden="true" style={noGl ? { backgroundImage: `url(${poster})` } : undefined} />;
 }

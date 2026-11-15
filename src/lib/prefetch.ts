@@ -3,10 +3,11 @@
  * blank one. Requests go through the browser (and the service worker's tile cache), at low priority and
  * low concurrency, only on connections that can afford it. Nothing here is required for the app to work.
  */
-import { CAMERAS, CHAPTER_IDS } from "@/components/landing/chapters";
+import { CAMERAS, CHAPTER_IDS, TERRAIN_CHAPTERS } from "@/components/landing/chapters";
 import { HOTSPOTS } from "./content";
 import { OFM } from "./mapStyle";
 
+export const DEM_TILES = "https://elevation-tiles-prod.s3.amazonaws.com/terrarium/{z}/{x}/{y}.png";
 const FONT_STACKS = ["Noto Sans Regular", "Noto Sans Bold", "Noto Sans Italic"];
 
 export interface Tile { readonly z: number; readonly x: number; readonly y: number }
@@ -31,7 +32,7 @@ export function worldTiles(maxZ: number): Tile[] {
 export function placeTiles(lat: number, lng: number, fromZ: number, toZ: number): Tile[] {
   const out: Tile[] = [];
   for (let z = fromZ; z <= toZ; z++) {
-    const c = tileFor(lat, lng, z), n = 2 ** z, r = z <= 8 ? 1 : 0;
+    const c = tileFor(lat, lng, z), n = 2 ** z, r = z <= 13 ? 1 : 0; // pitched views show the neighbours too
     for (let dx = -r; dx <= r; dx++) for (let dy = -r; dy <= r; dy++) {
       const y = c.y + dy;
       if (y >= 0 && y < n) out.push({ z, x: (((c.x + dx) % n) + n) % n, y });
@@ -67,6 +68,7 @@ export async function prefetchTourTiles(signal?: AbortSignal): Promise<void> {
       if (c.zoom < 3.5) continue; // the world tiles above already cover the wide views
       const z = Math.min(13, Math.round(c.zoom));
       if (vector) for (const t of placeTiles(c.center[1], c.center[0], Math.max(4, z - 2), z)) urls.push(fill(vector, t));
+      if (TERRAIN_CHAPTERS.has(id)) for (const t of placeTiles(c.center[1], c.center[0], 4, 9)) urls.push(fill(DEM_TILES, t));
       for (const t of placeTiles(c.center[1], c.center[0], 4, 6)) urls.push(fill(`${OFM}/natural_earth/ne2sr/{z}/{x}/{y}.png`, t));
     }
     // 3) each place, tour order first (Miami, Everglades, then the world views)

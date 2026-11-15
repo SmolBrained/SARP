@@ -95,8 +95,14 @@ export function buildStyle(): StyleSpecification {
         paint: { "fill-color": "#0f1a2c", "fill-opacity": 0.6 },
       },
       {
-        id: "building", type: "fill", source: "openmaptiles", "source-layer": "building", minzoom: 13,
-        paint: { "fill-color": "#131d36", "fill-outline-color": "#1d2a4a", "fill-opacity": ["interpolate", ["linear"], ["zoom"], 13, 0, 14.5, 0.9] },
+        id: "building", type: "fill-extrusion", source: "openmaptiles", "source-layer": "building", minzoom: 13,
+        paint: {
+          "fill-extrusion-color": ["interpolate", ["linear"], ["coalesce", ["get", "render_height"], 6], 0, "#16233f", 60, "#25375f", 200, "#3a5088"],
+          "fill-extrusion-height": ["coalesce", ["get", "render_height"], 6],
+          "fill-extrusion-base": ["coalesce", ["get", "render_min_height"], 0],
+          "fill-extrusion-opacity": ["interpolate", ["linear"], ["zoom"], 13, 0, 14.2, 0.92],
+          "fill-extrusion-vertical-gradient": true,
+        },
       },
       // ↓ radar data layers are inserted here (below water) ↓
       {
