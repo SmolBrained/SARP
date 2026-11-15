@@ -10,7 +10,9 @@ import { paint, prepare } from "@/lib/fieldRaster";
 import { Towers, psCloud } from "@/lib/psPoints";
 import { SCENES, type SceneId } from "@/lib/scenes";
 
-const FIELD_SCENES: readonly SceneId[] = ["everglades", "iceland"];
+const FIELD_SCENES: readonly SceneId[] = ["everglades", "iceland", "thwaites"];
+/** Halo colour for each landmark, so a place is never just a plain map even when the globe is zoomed far out. */
+const HALO: Record<string, string> = { miami: "#ff5a4d", everglades: "#b36bff", iceland: "#ff4fd8", thwaites: "#35e0ff", amazon: "#5fe08a" };
 const BAND = "nisar-l" as const;
 
 /** The time each place opens at in the viewer. */
@@ -33,15 +35,20 @@ export function addRadar(m: ML.Map): Radar {
   // 1. Miami scatterers
   m.addSource("ps", { type: "geojson", data: psCloud(tMiami), maxzoom: 16, buffer: 8 });
   m.addLayer({
-    id: "ps", type: "circle", source: "ps", minzoom: 9.5,
+    id: "ps", type: "circle", source: "ps", minzoom: 6.5,
     paint: {
-      "circle-radius": ["interpolate", ["exponential", 1.6], ["zoom"], 9.5, 0.9, 11, 1.6, 13, 3.2, 15, 5, 17, 7.5],
+      "circle-radius": ["interpolate", ["exponential", 1.6], ["zoom"], 6.5, 0.7, 9.5, 0.9, 11, 1.6, 13, 3.2, 15, 5, 17, 7.5],
       "circle-color": ["interpolate", ["linear"], ["get", "v"], -1, "#ff2d55", -0.55, "#ff6a3d", -0.25, "#ffb547", -0.08, "#f0dd95", -0.02, "#c7cfe6", 0.02, "#c7cfe6", 0.3, "#5aa2ff", 1, "#4f7cff"],
       "circle-opacity": ["interpolate", ["linear"], ["abs", ["get", "v"]], 0, 0.5, 0.1, 0.92, 1, 1],
       "circle-blur": 0.35,
       "circle-stroke-width": 0,
     },
   }, before);
+
+  // 1b. A glowing halo and ring at every landmark. Up close the radar picture takes over; far out this is what marks the place.
+  m.addSource("halos", { type: "geojson", data: { type: "FeatureCollection", features: HOTSPOTS.map((h) => ({ type: "Feature" as const, properties: { c: HALO[h.scene ?? h.id] ?? "#35e0ff" }, geometry: { type: "Point" as const, coordinates: [h.center[1], h.center[0]] } })) } });
+  m.addLayer({ id: "halo-glow", type: "circle", source: "halos", maxzoom: 10, paint: { "circle-color": ["get", "c"], "circle-opacity": ["interpolate", ["linear"], ["zoom"], 1, 0.5, 8, 0.28, 10, 0], "circle-radius": ["interpolate", ["linear"], ["zoom"], 1, 9, 5, 22, 10, 40], "circle-blur": 0.9 } }, before);
+  m.addLayer({ id: "halo-ring", type: "circle", source: "halos", maxzoom: 10, paint: { "circle-color": "rgba(0,0,0,0)", "circle-stroke-color": ["get", "c"], "circle-stroke-width": 1.4, "circle-stroke-opacity": ["interpolate", ["linear"], ["zoom"], 1, 0.9, 8, 0.7, 10, 0], "circle-radius": ["interpolate", ["linear"], ["zoom"], 1, 5, 5, 11, 10, 22] } }, before);
 
   // 2. Miami towers
   const towers = new Towers();

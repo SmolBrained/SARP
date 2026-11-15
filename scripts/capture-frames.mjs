@@ -86,7 +86,7 @@ for (const name of variants) {
     const shot = await page.screenshot({ type: "jpeg", quality: 88, clip: { x: 0, y: 0, width: w, height: h }, timeout: 120000 });
     await writeFile(join(dir, `l${String(k).padStart(4, "0")}.${ext}`), sharp ? await sharp(shot).webp({ quality: 72 }).toBuffer() : shot);
   }
-  await writeFile(join(dir, "manifest.json"), JSON.stringify({ v: 1, built: Date.now(), w, h, ext, count: total, loop: LOOP, anchors }));
+  await writeFile(join(dir, "manifest.json"), JSON.stringify({ v: 1, rev: 2, built: Date.now(), w, h, ext, count: total, loop: LOOP, anchors }));
   await page.context().close();
   console.log(`${name}: done`);
 }

@@ -57,7 +57,14 @@ export function paddingFor(from: Cam["side"], to: Cam["side"], t: number, w: num
   return { top: Math.round(lerp(a.top, b.top, t)), bottom: Math.round(lerp(a.bottom, b.bottom, t)), left: Math.round(lerp(a.left, b.left, t)), right: Math.round(lerp(a.right, b.right, t)) };
 }
 
-export interface Manifest { readonly v: 1; readonly w: number; readonly h: number; readonly ext: string; readonly count: number; readonly loop: number; readonly anchors: Readonly<Record<string, number>> }
+/**
+ * Bump when what the pictures show changes (rev 2: radar layers baked in). A set with an older or missing rev is ignored,
+ * so a visitor never gets stale bare-map pictures; the page uses the next set or the live globe instead.
+ * scripts/capture-frames.mjs writes the same number: keep them equal (tests/landing.test.ts checks).
+ */
+export const FRAME_REV = 2;
+
+export interface Manifest { readonly v: 1; readonly rev?: number; readonly w: number; readonly h: number; readonly ext: string; readonly count: number; readonly loop: number; readonly anchors: Readonly<Record<string, number>> }
 export const frameName = (i: number, ext: string): string => `f${String(i).padStart(4, "0")}.${ext}`;
 export const loopName = (i: number, ext: string): string => `l${String(i).padStart(4, "0")}.${ext}`;
 

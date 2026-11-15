@@ -99,3 +99,11 @@ describe("frame variants", () => {
     }
   });
 });
+
+import { readFileSync } from "node:fs";
+import { FRAME_REV } from "@/lib/framePath";
+describe("frame revision", () => {
+  it("the capture script writes the revision the page requires", () => {
+    expect(readFileSync("scripts/capture-frames.mjs", "utf8")).toContain(`rev: ${FRAME_REV},`);
+  });
+});

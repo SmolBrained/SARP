@@ -16,7 +16,7 @@ import { HearButtons } from "./HearButtons";
 import { Starfield } from "../Starfield";
 import { GlobeStage } from "./GlobeStage";
 import { FrameStage } from "./FrameStage";
-import { variantsFor, type FrameVariant, type Manifest } from "@/lib/framePath";
+import { FRAME_REV, variantsFor, type FrameVariant, type Manifest } from "@/lib/framePath";
 
 const BASE = process.env.NEXT_PUBLIC_BASE_PATH ?? "";
 const REPO = "https://github.com/SmolBrained/SARP";
@@ -40,7 +40,7 @@ export default function Landing() {
           const r = await fetch(`${BASE}/frames/${variant}/manifest.json`);
           if (!r.ok) continue;
           const manifest = (await r.json()) as Manifest;
-          if (manifest.v === 1 && manifest.count > 0) { if (!dead) setStage({ mode: "frames", manifest, variant }); return; }
+          if (manifest.v === 1 && manifest.rev === FRAME_REV && manifest.count > 0) { if (!dead) setStage({ mode: "frames", manifest, variant }); return; }
         } catch { /* try the next shape */ }
       }
       throw new Error("no frames");
