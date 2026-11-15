@@ -1,0 +1,48 @@
+{
+  "name": "sarpulse",
+  "version": "1.0.0",
+  "private": true,
+  "description": "SARPulse: see and hear Earth's surface move with NASA-ISRO NISAR radar. NASA Space Apps Challenge 2026 - Dancing with the SARs.",
+  "license": "MIT",
+  "type": "module",
+  "scripts": {
+    "dev": "node scripts/build-math.mjs && node scripts/vendor.mjs && next dev",
+    "build": "node scripts/build-math.mjs && node scripts/vendor.mjs && next build && node scripts/build-sw.mjs",
+    "start": "npx serve out",
+    "lint": "eslint .",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run",
+    "check": "npm run typecheck && npm run lint && npm run test && npm run check:math && npm run build",
+    "test:py": "uv run --with pytest --with numpy pytest -q pipeline/tests",
+    "data": "uv run pipeline/fetch_real_data.py",
+    "deploy": "npm run build && npx --yes firebase-tools@15 deploy --only hosting",
+    "math": "node scripts/build-math.mjs",
+    "vendor": "node scripts/vendor.mjs",
+    "check:math": "node scripts/check-math.mjs README.md docs"
+  },
+  "engines": {
+    "node": ">=20.9"
+  },
+  "dependencies": {
+    "next": "^16.4.6",
+    "qrcode-generator": "^2.0.4",
+    "react": "^19.3.1",
+    "react-dom": "^19.3.1"
+  },
+  "devDependencies": {
+    "@types/node": "^26.6.6",
+    "@types/react": "^19.3.0",
+    "@types/react-dom": "^19.3.0",
+    "eslint": "^9.39.5",
+    "eslint-config-next": "^16.4.6",
+    "maplibre-gl": "^6.18.0",
+    "mathjax-full": "^3.2.1",
+    "typescript": "^5.9.3",
+    "vitest": "^5.1.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/SmolBrained/SARP"
+  },
+  "author": "MCP Lead (Adrian Gomez, Jose Unanue)"
+}
