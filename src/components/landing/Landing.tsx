@@ -11,6 +11,7 @@ import { Tag } from "../Panel";
 import { viewerHref, type ChapterId } from "./chapters";
 import { CapsuleNav } from "./CapsuleNav";
 import { FringeDemo } from "./FringeDemo";
+import { AsfPanel } from "../AsfPanel";
 import { HearButtons } from "./HearButtons";
 import { GlobeStage } from "./GlobeStage";
 
@@ -154,6 +155,14 @@ export default function Landing() {
             {ACTIONS.map((a) => <li key={a.id}><small>{a.where}</small><b>{a.title}</b><p>{a.text}</p></li>)}
           </ul>
           <p className="lp-note">The tiers are a proposal for discussion, not an engineering standard. At Surfside, radar saw no settlement before the 2021 collapse, so SARPulse is a screening aid for inspectors, never a substitute for them.</p>
+        </div>
+      </section>
+
+      <section id="data" className="lp-sec lp-wide" data-chapter="data" aria-labelledby="data-h">
+        <div className="lp-card glass">
+          <p className="kicker">Get the data</p>
+          <h2 id="data-h">Where the radar lives.</h2>
+          <AsfPanel />
         </div>
       </section>
 

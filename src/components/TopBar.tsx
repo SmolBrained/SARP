@@ -205,6 +205,7 @@ export function TopBar({ state, dispatch, onSound }: { state: AppState; dispatch
         <button ref={layersBtn} className="action glass hide-sm" aria-haspopup="dialog" aria-expanded={state.popover === "layers"} onClick={() => toggle("layers")}>
           <Icon name="layers" size={18} />Layers
         </button>
+        <button className="action glass hide-sm" onClick={() => dispatch({ type: "setModal", modal: "data" })} aria-label="Where the radar data lives: ASF Data Search"><Icon name="book" size={18} />Data</button>
         <button className="action glass hide-sm" onClick={() => dispatch({ type: "setModal", modal: "share" })} aria-label="Share: open SARPulse on a phone"><Icon name="qr" size={18} />Share</button>
         <div className="show-sm" style={{ position: "relative" }}>
           <button ref={moreBtn} className="action glass" aria-haspopup="menu" aria-expanded={moreOpen} onClick={() => setMoreOpen(!moreOpen)}><Icon name="more" />Menu</button>
@@ -215,6 +216,7 @@ export function TopBar({ state, dispatch, onSound }: { state: AppState; dispatch
                 { label: state.sound ? "Turn sound off" : "Sound: hear the ground", icon: (state.sound ? "sound-on" : "sound-off") as "sound-on" | "sound-off", act: onSound },
                 { label: "Layers", icon: "layers" as const, act: () => dispatch({ type: "setPopover", popover: "layers" }) },
                 { label: "Back to the story", icon: "arrow-left" as const, act: () => window.open(`${BASE}/`, "_self") },
+                { label: "Find the data (ASF)", icon: "book" as const, act: () => dispatch({ type: "setModal", modal: "data" }) },
                 { label: "About and the math", icon: "info" as const, act: () => dispatch({ type: "setModal", modal: "about" }) },
                 { label: "Share (QR code)", icon: "qr" as const, act: () => dispatch({ type: "setModal", modal: "share" }) },
               ].map((m) => (

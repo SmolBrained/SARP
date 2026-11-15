@@ -16,7 +16,7 @@ import { PlaceBody, PlaceCard, Tag, TourCaption } from "./Panel";
 import { Dock, Legend, PinnedReadout, ReadPop, Timeline, Toast, Tooltip, XRay, Zoom } from "./Overlays";
 import { TopBar } from "./TopBar";
 import { prefetchTourTiles } from "@/lib/prefetch";
-import { AboutModal, ShareModal } from "./Modals";
+import { AboutModal, DataModal, ShareModal } from "./Modals";
 
 const pointerStore = createStore<PointerInfo | null>(null);
 const GAP = 16;
@@ -271,6 +271,7 @@ export default function Workspace() {
         )}
       </div>
       {state.modal === "about" && <AboutModal onClose={closeModal} />}
+      {state.modal === "data" && <DataModal onClose={closeModal} at={placeOf(state).center} />}
       {state.modal === "share" && <ShareModal onClose={closeModal} />}
     </div>
   );

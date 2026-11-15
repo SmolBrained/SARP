@@ -44,3 +44,12 @@ describe("triage tiers", () => {
     expect(TIERS).toHaveLength(3);
   });
 });
+
+import { DATASETS, asfUrl } from "@/lib/asf";
+describe("ASF catalogue", () => {
+  it("lists all 17 datasets and builds a NISAR deep link", () => {
+    expect(DATASETS).toHaveLength(17);
+    expect(DATASETS.filter((d) => !d.searchable)).toHaveLength(4);
+    expect(asfUrl(25.76, -80.19, 9)).toBe("https://search.asf.alaska.edu/#/?dataset=NISAR&zoom=9&center=-80.190,25.760");
+  });
+});

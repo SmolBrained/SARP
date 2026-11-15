@@ -17,7 +17,7 @@ export type LiveStatus = "off" | "searching" | "ready" | "none";
 export interface LiveState { readonly status: LiveStatus; readonly date: string | null }
 export type Basemap = "map" | "satellite";
 export type Sheet = "peek" | "half" | "full";
-export type Modal = "about" | "share" | null;
+export type Modal = "about" | "share" | "data" | null;
 export type Popover = "places" | "layers" | "read" | null;
 export type Speed = 1 | 2 | 4;
 

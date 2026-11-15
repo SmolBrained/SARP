@@ -5,6 +5,7 @@ import { REFS } from "@/lib/content";
 import { BANDS, BAND_IDS, LOS } from "@/lib/physics";
 import { Tag } from "./Panel";
 import { Icon } from "./Icon";
+import { AsfPanel } from "./AsfPanel";
 import EQUATIONS from "@/lib/equations.json";
 import SVG_RAW from "@/data/equations.svg.json";
 
@@ -52,6 +53,14 @@ export function ShareModal({ onClose }: { onClose: () => void }) {
       <div className="qr" {...(svg ? { dangerouslySetInnerHTML: { __html: svg } } : {})}>{!svg && <p>Deploy the site and this QR code will point to its public link.</p>}</div>
       <p className="mono" style={{ wordBreak: "break-all", fontSize: 12.5 }}><a href={url}>{url}</a></p>
       <p>No login and no install.</p>
+    </Modal>
+  );
+}
+
+export function DataModal({ onClose, at }: { onClose: () => void; at?: readonly [number, number] }) {
+  return (
+    <Modal id="data" title="Where the radar data lives" onClose={onClose}>
+      <AsfPanel {...(at ? { at } : {})} />
     </Modal>
   );
 }
