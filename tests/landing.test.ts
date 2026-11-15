@@ -1,0 +1,36 @@
+import { describe, expect, it } from "vitest";
+import { CAMERAS, CHAPTER_IDS, viewerHref } from "@/components/landing/chapters";
+import { HOTSPOTS } from "@/lib/content";
+import { placeTiles, tileFor, worldTiles } from "@/lib/prefetch";
+
+describe("landing page", () => {
+  it("has a camera for every chapter, on the globe or a real place", () => {
+    for (const id of CHAPTER_IDS) {
+      const c = CAMERAS[id];
+      expect(c, id).toBeDefined();
+      expect(Math.abs(c.center[1])).toBeLessThanOrEqual(90);
+      expect(Math.abs(c.center[0])).toBeLessThanOrEqual(180);
+      expect(c.zoom).toBeGreaterThan(0);
+    }
+  });
+  it("links every place to the viewer with a parseable deep link", () => {
+    for (const h of HOTSPOTS) expect(viewerHref("/SARP", h.id)).toBe(`/SARP/explore/#v=${h.group}&p=${h.id}`);
+  });
+});
+
+describe("tile prefetch maths", () => {
+  it("finds the standard tile for a known point", () => {
+    expect(tileFor(0, 0, 1)).toEqual({ z: 1, x: 1, y: 1 });
+    const m = tileFor(25.76, -80.19, 10); // Miami
+    expect(m).toEqual({ z: 10, x: 283, y: 436 });
+  });
+  it("clamps polar latitudes and wraps longitude", () => {
+    expect(tileFor(89.99, 0, 3).y).toBe(0);
+    expect(tileFor(0, 190, 2).x).toBeGreaterThanOrEqual(0);
+  });
+  it("lists the whole globe at low zoom and a block around a place", () => {
+    expect(worldTiles(2)).toHaveLength(1 + 4 + 16);
+    expect(placeTiles(25.76, -80.19, 5, 5)).toHaveLength(9);
+    expect(placeTiles(25.76, -80.19, 12, 12)).toHaveLength(1);
+  });
+});

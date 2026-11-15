@@ -190,6 +190,7 @@ export function TopBar({ state, dispatch, onSound }: { state: AppState; dispatch
       {state.popover === "places" && <div ref={pickerWrap}><Picker place={state.place} dispatch={dispatch} /></div>}
 
       <div className="topright">
+        <a className="action glass hide-sm" href={`${BASE}/`} aria-label="Back to the SARPulse story"><Icon name="arrow-left" size={18} />Story</a>
         <button className={`action glass hide-sm${state.tour === null ? " cta" : ""}`} aria-pressed={state.tour !== null} onClick={() => dispatch(state.tour !== null ? { type: "endTour" } : { type: "startTour" })}>
           <Icon name="compass" size={18} />{state.tour !== null ? "Exit tour" : "Tour"}
         </button>
@@ -212,6 +213,7 @@ export function TopBar({ state, dispatch, onSound }: { state: AppState; dispatch
               {[
                 { label: state.tour !== null ? "Exit tour" : "Start the tour", icon: "compass" as const, act: () => dispatch(state.tour !== null ? { type: "endTour" } : { type: "startTour" }) },
                 { label: "Layers", icon: "layers" as const, act: () => dispatch({ type: "setPopover", popover: "layers" }) },
+                { label: "Back to the story", icon: "arrow-left" as const, act: () => window.open(`${BASE}/`, "_self") },
                 { label: "About and the math", icon: "info" as const, act: () => dispatch({ type: "setModal", modal: "about" }) },
                 { label: "Share (QR code)", icon: "qr" as const, act: () => dispatch({ type: "setModal", modal: "share" }) },
               ].map((m) => (

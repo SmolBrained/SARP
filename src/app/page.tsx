@@ -1,11 +1,11 @@
-import Workspace from "@/components/Workspace";
+import Landing from "@/components/landing/Landing";
 
-/** Static shell; the interactive workspace hydrates on the client (MapLibre loads lazily inside MapView). */
+/** Home: the scroll story. The interactive viewer lives at /explore. */
 export default function Page() {
   return (
     <>
-      <Workspace />
-      <noscript><p style={{ padding: 24 }}>SARPulse needs JavaScript to draw the radar map.</p></noscript>
+      <Landing />
+      <noscript><p style={{ padding: 24 }}>SARPulse tells its story over a 3D globe and needs JavaScript. The code and docs are at github.com/SmolBrained/SARP.</p></noscript>
     </>
   );
 }

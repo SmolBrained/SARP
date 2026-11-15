@@ -15,7 +15,7 @@ import MapView, { type MapApi, type PointerInfo } from "./MapView";
 import { PlaceBody, PlaceCard, Tag, TourCaption } from "./Panel";
 import { Dock, Legend, PinnedReadout, ReadPop, Timeline, Toast, Tooltip, XRay, Zoom } from "./Overlays";
 import { TopBar } from "./TopBar";
-import { Intro } from "./Intro";
+import { prefetchTourTiles } from "@/lib/prefetch";
 import { AboutModal, ShareModal } from "./Modals";
 
 const pointerStore = createStore<PointerInfo | null>(null);
@@ -40,10 +40,8 @@ const ownsKeys = (t: EventTarget | null) => t instanceof HTMLElement && (t.isCon
 export default function Workspace() {
   const [state, dispatch] = useReducer(reducer, undefined, () => initialState());
   const [toast, setToast] = useState<string | null>(null);
-  const [hudLate, setHudLate] = useState(false);
   const playOnArrive = useRef(false);
   const sweepPlayed = useRef(false);
-  const hudTimer = useRef(0);
   const sonifier = useMemo(() => new Sonifier(), []);
   const api = useRef<MapApi | null>(null);
   const stateRef = useRef<AppState>(state);
@@ -62,37 +60,18 @@ export default function Workspace() {
     else if (u.view) dispatch({ type: "setView", view: u.view });
     if (u.band) dispatch({ type: "setBand", band: u.band });
     if (u.display) dispatch({ type: "setDisplay", display: u.display });
-    let seen = false;
-    try { seen = localStorage.getItem("sarp:intro") === "1"; } catch { /* private mode */ }
-    const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-    const timers: number[] = [];
-    if (!seen && !u.place && !u.view) dispatch({ type: "setIntro", on: true });
-    else if (!reduce) playOnArrive.current = true; // play the story once the camera lands
+    if (!window.matchMedia("(prefers-reduced-motion: reduce)").matches) playOnArrive.current = true; // play the story once the camera lands
     if ("serviceWorker" in navigator && window.location.protocol === "https:") void navigator.serviceWorker.register(`${process.env.NEXT_PUBLIC_BASE_PATH ?? ""}/sw.js`).catch(() => undefined);
-    return () => timers.forEach(window.clearTimeout);
-  }, []);
-
-  const leaveIntro = useCallback((tour: boolean) => {
-    try { localStorage.setItem("sarp:intro", "1"); } catch { /* private mode */ }
-    setHudLate(true); // the interface fades in once the first flight lands
-    window.clearTimeout(hudTimer.current);
-    hudTimer.current = window.setTimeout(() => setHudLate(false), 6500); // failsafe if no landing is reported
-    playOnArrive.current = true;
-    dispatch({ type: "setIntro", on: false });
-    if (tour) dispatch({ type: "startTour" });
+    void prefetchTourTiles();
   }, []);
 
   /** Camera landed and the field developed: reveal the interface and play the place's story once. */
   const onArrive = useCallback(() => {
-    window.clearTimeout(hudTimer.current);
-    setHudLate(false);
     if (!playOnArrive.current) return;
     playOnArrive.current = false;
     const sc = sceneOf(stateRef.current);
     if (sc && !window.matchMedia("(prefers-reduced-motion: reduce)").matches) { dispatch({ type: "setTime", t: sc.t.min }); dispatch({ type: "setPlaying", playing: true }); }
   }, []);
-  const onTour = useCallback(() => leaveIntro(true), [leaveIntro]);
-  const onExplore = useCallback(() => leaveIntro(false), [leaveIntro]);
 
   /* tour: each chapter flies, then plays its story once it lands (see onArrive) */
   useEffect(() => { if (state.tour !== null) playOnArrive.current = true; }, [state.tour]);
@@ -117,7 +96,6 @@ export default function Workspace() {
     }, FLY_MS);
     return () => { window.clearTimeout(start); cancelAnimationFrame(raf); };
   }, [state.compare]);
-  useEffect(() => () => window.clearTimeout(hudTimer.current), []);
 
   /* URL ↔ state */
   useEffect(() => {
@@ -226,7 +204,7 @@ export default function Workspace() {
   const t = sc ? state.sceneT[sc.id] : 0;
 
   return (
-    <div className={`shell${state.intro || hudLate ? " intro-mode" : ""}`}>
+    <div className="shell">
       <Starfield />
       <MapView state={state} dispatch={dispatch} pointer={pointerStore} sonifier={sonifier} leftInset={leftInset} bottomInset={bottomInset} onApi={onApi} onNotice={onNotice} onNetwork={onNetwork} onArrive={onArrive} />
       <div className="vignette" aria-hidden="true" />
@@ -292,7 +270,6 @@ export default function Workspace() {
           </section>
         )}
       </div>
-      {state.intro && <Intro onTour={onTour} onExplore={onExplore} />}
       {state.modal === "about" && <AboutModal onClose={closeModal} />}
       {state.modal === "share" && <ShareModal onClose={closeModal} />}
     </div>
