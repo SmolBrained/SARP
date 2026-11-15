@@ -37,6 +37,7 @@ export default function Landing() {
     onScroll();
     window.addEventListener("scroll", onScroll, { passive: true });
     void prefetchTourTiles();
+    void navigator.storage?.persist?.().catch(() => undefined); // ask the browser not to evict the cached map
     if ("serviceWorker" in navigator && window.location.protocol === "https:") void navigator.serviceWorker.register(`${BASE}/sw.js`).catch(() => undefined);
     return () => { io.disconnect(); window.removeEventListener("scroll", onScroll); };
   }, []);

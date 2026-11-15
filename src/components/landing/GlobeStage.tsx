@@ -45,7 +45,7 @@ export function GlobeStage({ chapter, onReady }: { chapter: ChapterId; onReady?:
       const c0 = CAMERAS.top;
       const m = new lf.Map({
         container: box.current, style: buildStyle(), center: [...c0.center], zoom: c0.zoom, pitch: 0, bearing: 0,
-        interactive: false, attributionControl: { compact: true }, fadeDuration: 150, maxPitch: 70,
+        interactive: false, pixelRatio: Math.min(window.devicePixelRatio || 1, 1.5), attributionControl: { compact: true }, fadeDuration: 150, maxPitch: 70,
       });
       map.current = m;
       m.setPadding(padFor(c0.side));

@@ -53,3 +53,13 @@ describe("ASF catalogue", () => {
     expect(asfUrl(25.76, -80.19, 9)).toBe("https://search.asf.alaska.edu/#/?dataset=NISAR&zoom=9&center=-80.190,25.760");
   });
 });
+
+describe("prefetch covers the home-page scroll", () => {
+  it("has a tile block for every zoomed-in chapter camera", () => {
+    for (const id of CHAPTER_IDS) {
+      const c = CAMERAS[id];
+      if (c.zoom < 3.5) continue;
+      expect(placeTiles(c.center[1], c.center[0], 4, Math.min(13, Math.round(c.zoom))).length).toBeGreaterThan(0);
+    }
+  });
+});

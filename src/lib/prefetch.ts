@@ -3,6 +3,7 @@
  * blank one. Requests go through the browser (and the service worker's tile cache), at low priority and
  * low concurrency, only on connections that can afford it. Nothing here is required for the app to work.
  */
+import { CAMERAS, CHAPTER_IDS } from "@/components/landing/chapters";
 import { HOTSPOTS } from "./content";
 import { OFM } from "./mapStyle";
 
@@ -51,7 +52,7 @@ let started = false;
 export async function prefetchTourTiles(signal?: AbortSignal): Promise<void> {
   if (started || typeof window === "undefined" || !canPrefetch()) return;
   started = true;
-  const idle = (): Promise<void> => new Promise((r) => ("requestIdleCallback" in window ? window.requestIdleCallback(() => r(), { timeout: 2000 }) : setTimeout(r, 400)));
+  const idle = (): Promise<void> => new Promise((r) => ("requestIdleCallback" in window ? window.requestIdleCallback(() => r(), { timeout: 600 }) : setTimeout(r, 400)));
   try {
     await idle();
     const meta = (await (await fetch(`${OFM}/planet`, { signal })).json()) as { tiles?: string[] };
@@ -60,7 +61,15 @@ export async function prefetchTourTiles(signal?: AbortSignal): Promise<void> {
     for (const stack of FONT_STACKS) urls.push(`${OFM}/fonts/${encodeURIComponent(stack)}/0-255.pbf`);
     // 1) the globe: every low-zoom vector and relief tile
     for (const t of worldTiles(3)) { if (vector) urls.push(fill(vector, t)); urls.push(fill(`${OFM}/natural_earth/ne2sr/{z}/{x}/{y}.png`, t)); }
-    // 2) each place, tour order first (Miami, Everglades, then the world views)
+    // 2) every stop of the home-page scroll, in scroll order, at the zoom the camera lands on
+    for (const id of CHAPTER_IDS) {
+      const c = CAMERAS[id];
+      if (c.zoom < 3.5) continue; // the world tiles above already cover the wide views
+      const z = Math.min(13, Math.round(c.zoom));
+      if (vector) for (const t of placeTiles(c.center[1], c.center[0], Math.max(4, z - 2), z)) urls.push(fill(vector, t));
+      for (const t of placeTiles(c.center[1], c.center[0], 4, 6)) urls.push(fill(`${OFM}/natural_earth/ne2sr/{z}/{x}/{y}.png`, t));
+    }
+    // 3) each place, tour order first (Miami, Everglades, then the world views)
     const order = [...HOTSPOTS].sort((a, b) => Number(b.group === "miami") - Number(a.group === "miami"));
     for (const h of order) {
       const [lat, lng] = h.center;
@@ -74,6 +83,6 @@ export async function prefetchTourTiles(signal?: AbortSignal): Promise<void> {
         if (queue.length % 24 === 0) await idle();
       }
     };
-    await Promise.all([worker(), worker(), worker()]);
+    await Promise.all([worker(), worker(), worker(), worker(), worker()]);
   } catch { /* prefetching is best-effort */ }
 }
