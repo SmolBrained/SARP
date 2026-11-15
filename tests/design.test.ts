@@ -7,8 +7,20 @@ import { describe, expect, it } from "vitest";
  */
 const css = readFileSync("src/app/globals.css", "utf8");
 const layout = readFileSync("src/app/layout.tsx", "utf8");
+const fonts = readFileSync("src/app/fonts.css", "utf8");
+const landing = readFileSync("src/styles/landing.css", "utf8");
 
 describe("design guardrails", () => {
+  it("ships exactly two font families, each with Latin and Greek", () => {
+    const fam = [...fonts.matchAll(/font-family: "([^"]+)"/g)].map((m) => m[1]);
+    expect([...new Set(fam)].sort()).toEqual(["Manrope", "Source Serif 4"]);
+    expect(fam).toHaveLength(4);
+    expect(css).not.toMatch(/font-family:\s*"(?!Manrope|Source Serif 4)[A-Z]/);
+  });
+  it("keeps the home page free of gradient text and glows", () => {
+    expect(landing).not.toMatch(/background-clip:\s*text/);
+    expect(landing).not.toMatch(/text-shadow:[^;]*0 0 \d+px/);
+  });
   it("uses no overused AI-default typefaces", () => {
     for (const f of ["Inter", "Space Grotesk", "JetBrains Mono", "Plus Jakarta", "Geist", "Syne", "Roboto"]) {
       expect(css.includes(f) || layout.includes(f), f).toBe(false);

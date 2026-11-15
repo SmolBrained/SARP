@@ -51,7 +51,7 @@ export const Metrics = memo(function Metrics({ metrics, animateKey }: { metrics:
   return (
     <div className="metrics">
       <div className="hero-metric">
-        <div className="hero-value"><Ticker value={hero.value} animateKey={animateKey} /></div>
+        <div className={`hero-value${/^[−+-]?\d/.test(hero.value) ? "" : " words"}`}><Ticker value={hero.value} animateKey={animateKey} /></div>
         <div className="hero-caption"><b>{hero.label}</b> · {hero.note}</div>
       </div>
       <dl className="metric-rows">
