@@ -22,5 +22,5 @@ What the original project claimed, what we found, and what changed. Keep this fo
 | Pitch deck structure | Local lead suggests: Team, Problem, Solution, How it works + NASA data, Demo, Impact, Next steps | Deck follows it |
 | "Embedded 90-second video" loophole on slides | Risks looking like a rules workaround | Dropped; QR goes to the live app instead |
 
-| "Dark UI uses a mono font for numbers" (design tell) | Common AI-template signature | Replaced by Source Serif 4 / Source Sans 3; guardrail test added |
+| "Dark UI uses a mono font for numbers" (design tell) | Common AI-template signature | Replaced by Manrope (UI) + Source Serif 4 (headlines); guardrail test added |
 | Equation sign convention mixed phase and displacement | d_LOS = −ΔR = (λ/4π)Δφ, positive toward the satellite | One convention everywhere, tests added |

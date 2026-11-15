@@ -1,6 +1,6 @@
 # Interface design (v3)
 
-The first version tried to show everything at once: several floating panels, wrapping chips, controls in three places. v2 was rebuilt from scratch around patterns that shipped products already use for "a map plus a list of places plus a time control". Each move below cites the product screens on Mobbin that it follows. Only the layout and interaction structure were borrowed; the skin (dark radar palette, Source Sans 3 and Source Serif 4, cyan accent) is SARPulse's own.
+The first version tried to show everything at once: several floating panels, wrapping chips, controls in three places. v2 was rebuilt from scratch around patterns that shipped products already use for "a map plus a list of places plus a time control". Each move below cites the product screens on Mobbin that it follows. Only the layout and interaction structure were borrowed; the skin (dark radar palette, Manrope and Source Serif 4, cyan accent) is SARPulse's own.
 
 | # | Problem in v1 | Move in v2 | Precedent (Mobbin) |
 | --- | --- | --- | --- |
@@ -34,9 +34,16 @@ Web research on what makes an interface read as AI-generated turned up a consist
 
 | Tell | What replaced it |
 | --- | --- |
-| Monospace for numbers and a geometric sans for text | Source Sans 3 for interface text and Source Serif 4 for the one large number on a card. Both are SIL OFL, self-hosted, Latin plus Greek subsets (Greek is needed for λ, φ, Δ, θ). Numbers use the font's own tabular figures. |
+| Monospace for numbers; a different font in every corner | Exactly two families, both SIL OFL and self-hosted in Latin plus Greek (needed for λ, φ, Δ, θ): Manrope for all interface text and Source Serif 4 for headlines and the one large number on a card. A test fails the build if a third family appears. Numbers use the fonts' tabular figures. |
 | Gradient headline text, glowing rings | Solid colour only. Marker ring animation runs on the selected marker only. |
 | Heavy translucent glass everywhere | A single flat, mostly opaque surface token; blur is kept only over the map where it helps legibility. |
 | Cards around every metric | Key/value rows with hairline dividers (kept from v2). |
 
 These are enforced by `tests/design.test.ts`, which fails the build if a monospace stack, gradient-clipped text or a glow shadow reappears in the stylesheet.
+
+## v4: home page and viewer
+
+- **Two routes.** `/` is the story (scroll chapters over a fixed MapLibre globe: hero with the NISAR ground track, why radar, phase becomes motion with a live fringe demo, Miami, Everglades, Iceland, the world, sound, a five-step viewer tutorial, and what each tag means). `/explore/` is the viewer. A capsule navigation bar glides in once the hero has scrolled away.
+- **Camera per chapter.** Each chapter names which side its text card sits on; the globe is padded so the place it flies to stays centred in the free half (below the card on phones).
+- **Map reliability.** Basemap water and land are two distinguishable navy tones (the old near-black ocean read as missing map), with land cover, wetland and urban fills so no region is an empty fill. The service worker caches tiles and glyphs cache-first but TileJSON network-first (so a tile-version change is never served stale), and `lib/prefetch.ts` warms the globe tiles and the tour places on idle.
+- **Text that cannot overflow.** The card's hero value switches to a wrapping smaller style when it is words (for example a dataset name) instead of a number.

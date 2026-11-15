@@ -11,7 +11,7 @@
 <img alt="NASA Space Apps 2026" src="https://img.shields.io/badge/NASA%20Space%20Apps-2026-00e8ff?labelColor=080b16">
 </p>
 
-<p align="center"><img src="docs/img/hero-globe.jpg" alt="SARPulse opening screen: a spinning globe with NISAR ground tracks" width="860"></p>
+<p align="center"><img src="docs/img/home-hero.jpg" alt="SARPulse home page: headline beside a rotating 3D globe" width="860"></p>
 
 
 **NASA International Space Apps Challenge 2026 · Challenge: _Dancing with the SARs_ · Miami local event (Miami Dade College, Padrón Campus)**
@@ -24,9 +24,13 @@ SARPulse turns NASA-ISRO **NISAR** synthetic aperture radar into something anyon
 - **Global context:** a volcano refilling in Iceland, tides flexing the Thwaites Glacier, and deforestation in the Amazon.
 
 > **Live demo:** _add your Firebase or GitHub Pages URL here_ · works on any phone, no login.
+> **Two pages:** `/` is a scroll-driven story over a 3D globe that flies to each place; `/explore/` is the interactive viewer (deep links look like `/explore/#v=world&p=iceland`).
 
 
 <table>
+<tr>
+<td colspan="2"><img src="docs/img/home-story.jpg" alt="Scrolling the home page flies the globe to Iceland while the story card explains the volcano"><br><sub><b>Scroll story:</b> the globe flies to each place as you read; a capsule nav slides in below the hero.</sub></td>
+</tr>
 <tr>
 <td width="50%"><img src="docs/img/volcano-iceland.jpg" alt="Svartsengi volcano interferogram with colour fringes"><br><sub><b>Iceland:</b> magma refilling lifts the ground ~2 cm a month; each colour cycle is 11.9 cm.</sub></td>
 <td width="50%"><img src="docs/img/miami-highrises.jpg" alt="Miami coastal high-rises coloured by how far they have sunk"><br><sub><b>Miami:</b> persistent-scatterer points coloured by how far each sank since 2016.</sub></td>
@@ -166,7 +170,9 @@ src/
   lib/appState.ts          Single typed reducer: every UI transition is a pure, tested function
   lib/content.ts           Places, live layers and references (single source of truth)
   lib/equations.json       The math shown in the app, typeset to SVG by MathJax at build time
-  components/              React 19 UI: Workspace, MapView (MapLibre bridge), place card, dock, tour, intro, modals
+  components/              React 19 UI: Workspace, MapView (MapLibre bridge), place card, dock, tour, modals
+  components/landing/      Home page: scroll chapters, globe stage (camera per chapter), capsule nav, interactive fringe demo
+  lib/prefetch.ts          Warms the tile cache for the tour places (globe tiles, Miami, Everglades, ...) on idle
 scripts/
   vendor.mjs               Self-hosts the pinned MapLibre build from node_modules (no CDN)
   build-math.mjs           MathJax TeX → SVG at build time (no MathJax runtime shipped)
@@ -218,4 +224,4 @@ We used **Claude (Anthropic)** as a coding and research assistant. It fact-check
 **MCP Lead** (Miami Coral Park): **Adrian Gomez** and **Jose Unanue** (Team Owner).
 
 ## License
-MIT. Third-party: MapLibre GL JS (BSD-3), Lucide icon subset (ISC), qrcode-generator (MIT), Space Grotesk, Inter and JetBrains Mono (SIL OFL 1.1), MathJax (Apache-2.0, build time only), Natural Earth (public domain). Map data © OpenStreetMap contributors via OpenFreeMap (no API key); imagery © Esri, Maxar, Earthstar Geographics; NASA GIBS imagery courtesy NASA ESDIS.
+MIT. Third-party: MapLibre GL JS (BSD-3), Lucide icon subset (ISC), qrcode-generator (MIT), Manrope and Source Serif 4 (SIL OFL 1.1), MathJax (Apache-2.0, build time only), Natural Earth (public domain). Map data © OpenStreetMap contributors via OpenFreeMap (no API key); imagery © Esri, Maxar, Earthstar Geographics; NASA GIBS imagery courtesy NASA ESDIS.
