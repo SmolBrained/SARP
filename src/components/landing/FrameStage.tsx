@@ -12,7 +12,7 @@ const BASE = process.env.NEXT_PUBLIC_BASE_PATH ?? "";
 const FPS = 15;
 const LOOP_FPS = 12;
 
-export function FrameStage({ chapter, manifest, variant }: { chapter: ChapterId; manifest: Manifest; variant: "desktop" | "mobile" }) {
+export function FrameStage({ chapter, manifest, variant }: { chapter: ChapterId; manifest: Manifest; variant: string }) {
   const cv = useRef<HTMLCanvasElement>(null);
   const goal = useRef(manifest.anchors[chapter] ?? 0);
   useEffect(() => { goal.current = manifest.anchors[chapter] ?? 0; }, [chapter, manifest]);

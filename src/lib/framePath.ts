@@ -60,3 +60,26 @@ export function paddingFor(from: Cam["side"], to: Cam["side"], t: number, w: num
 export interface Manifest { readonly v: 1; readonly w: number; readonly h: number; readonly ext: string; readonly count: number; readonly loop: number; readonly anchors: Readonly<Record<string, number>> }
 export const frameName = (i: number, ext: string): string => `f${String(i).padStart(4, "0")}.${ext}`;
 export const loopName = (i: number, ext: string): string => `l${String(i).padStart(4, "0")}.${ext}`;
+
+/**
+ * The sizes the flipbook is rendered at. Each one is framed for its own screen shape (the text card sits beside the globe on
+ * wide screens and below it on narrow ones), so the landmark stays in the free space instead of being cropped or hidden.
+ * `narrow` follows the same 961 px rule as paddingFor, so a capture and a visitor agree about where the card is.
+ */
+export const FRAME_VARIANTS = {
+  phone: { w: 540, h: 960, narrow: true },
+  "tablet-portrait": { w: 768, h: 1024, narrow: true },
+  "tablet-landscape": { w: 1024, h: 768, narrow: false },
+  desktop: { w: 1280, h: 720, narrow: false },
+  wide: { w: 1720, h: 720, narrow: false },
+} as const;
+export type FrameVariant = keyof typeof FRAME_VARIANTS;
+export const FRAME_VARIANT_IDS = Object.keys(FRAME_VARIANTS) as FrameVariant[];
+
+/** Candidates for a screen, best first: same side of the 961 px line, then closest shape (by log aspect ratio). */
+export function variantsFor(width: number, height: number): FrameVariant[] {
+  const narrow = width < 961, ratio = Math.log(width / Math.max(1, height));
+  const dist = (v: FrameVariant): number => Math.abs(Math.log(FRAME_VARIANTS[v].w / FRAME_VARIANTS[v].h) - ratio);
+  const rank = (v: FrameVariant): number => (FRAME_VARIANTS[v].narrow === narrow ? 0 : 10) + dist(v);
+  return [...FRAME_VARIANT_IDS].sort((a, b) => rank(a) - rank(b));
+}

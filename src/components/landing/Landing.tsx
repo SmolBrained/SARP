@@ -16,7 +16,7 @@ import { HearButtons } from "./HearButtons";
 import { Starfield } from "../Starfield";
 import { GlobeStage } from "./GlobeStage";
 import { FrameStage } from "./FrameStage";
-import type { Manifest } from "@/lib/framePath";
+import { variantsFor, type FrameVariant, type Manifest } from "@/lib/framePath";
 
 const BASE = process.env.NEXT_PUBLIC_BASE_PATH ?? "";
 const REPO = "https://github.com/SmolBrained/SARP";
@@ -28,15 +28,24 @@ function Go({ id, children }: { id: string; children: React.ReactNode }) {
 export default function Landing() {
   const [active, setActive] = useState<ChapterId>("top");
   // Pre-rendered pictures when they exist (npm run frames), the live 3D globe when they do not
-  const [stage, setStage] = useState<{ mode: "probing" } | { mode: "live" } | { mode: "frames"; manifest: Manifest; variant: "desktop" | "mobile" }>({ mode: "probing" });
+  const [stage, setStage] = useState<{ mode: "probing" } | { mode: "live" } | { mode: "frames"; manifest: Manifest; variant: FrameVariant }>({ mode: "probing" });
   useEffect(() => {
-    const variant = window.innerWidth < 961 ? "mobile" : "desktop";
     const capture = new URLSearchParams(window.location.search).has("capture"); // the capture script needs the live map
     let dead = false;
-    (capture ? Promise.reject(new Error("capture")) : fetch(`${BASE}/frames/${variant}/manifest.json`))
-      .then((r) => (r.ok ? (r.json() as Promise<Manifest>) : Promise.reject(new Error("no frames"))))
-      .then((manifest) => { if (!dead && manifest.v === 1 && manifest.count > 0) setStage({ mode: "frames", manifest, variant }); else if (!dead) setStage({ mode: "live" }); })
-      .catch(() => { if (!dead) setStage({ mode: "live" }); });
+    // the closest-shaped set first; if that one was not rendered, the next closest, and the live globe only if none exist
+    const tryNext = async (): Promise<void> => {
+      if (capture) throw new Error("capture");
+      for (const variant of variantsFor(window.innerWidth, window.innerHeight)) {
+        try {
+          const r = await fetch(`${BASE}/frames/${variant}/manifest.json`);
+          if (!r.ok) continue;
+          const manifest = (await r.json()) as Manifest;
+          if (manifest.v === 1 && manifest.count > 0) { if (!dead) setStage({ mode: "frames", manifest, variant }); return; }
+        } catch { /* try the next shape */ }
+      }
+      throw new Error("no frames");
+    };
+    tryNext().catch(() => { if (!dead) setStage({ mode: "live" }); });
     return () => { dead = true; };
   }, []);
   const [scrolled, setScrolled] = useState(false);

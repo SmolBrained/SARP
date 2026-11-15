@@ -6,7 +6,7 @@
  * It opens the built site in a headless Chromium on THIS computer (it needs internet for the map tiles), moves
  * the camera to each position from src/lib/framePath.ts, waits until the map has finished drawing, and saves a
  * picture. Takes a few minutes. Needs:  npm i -D playwright  &&  npx playwright install chromium
- * Environment: FRAME_WAIT_MS (max wait per frame, default 20000), VARIANTS (desktop,mobile).
+ * Environment: FRAME_WAIT_MS (max wait per frame, default 20000), VARIANTS (phone,tablet-portrait,tablet-landscape,desktop,wide).
  */
 import { createServer } from "node:http";
 import { mkdir, readFile, rm, stat, writeFile } from "node:fs/promises";
@@ -17,7 +17,8 @@ const ROOT = fileURLToPath(new URL("..", import.meta.url));
 const OUT = join(ROOT, "out");
 const FRAMES = join(ROOT, "public", "frames");
 const WAIT = Number(process.env.FRAME_WAIT_MS ?? 20000);
-const SIZES = { desktop: { w: 1280, h: 720 }, mobile: { w: 540, h: 960 } };
+// keep in step with FRAME_VARIANTS in src/lib/framePath.ts
+const SIZES = { phone: { w: 540, h: 960 }, "tablet-portrait": { w: 768, h: 1024 }, "tablet-landscape": { w: 1024, h: 768 }, desktop: { w: 1280, h: 720 }, wide: { w: 1720, h: 720 } };
 const MIME = { ".html": "text/html", ".js": "text/javascript", ".mjs": "text/javascript", ".css": "text/css", ".json": "application/json", ".svg": "image/svg+xml", ".png": "image/png", ".jpg": "image/jpeg", ".woff2": "font/woff2", ".webp": "image/webp" };
 
 let chromium, sharp;
@@ -39,7 +40,7 @@ await new Promise((r) => server.listen(0, "127.0.0.1", r));
 const origin = `http://127.0.0.1:${server.address().port}`;
 
 const browser = await chromium.launch({ ...(process.env.CHROMIUM_PATH ? { executablePath: process.env.CHROMIUM_PATH } : {}), args: ["--use-angle=swiftshader", "--enable-unsafe-swiftshader", "--ignore-gpu-blocklist", "--enable-webgl"] });
-const variants = (process.env.VARIANTS ?? "desktop,mobile").split(",");
+const variants = (process.env.VARIANTS ?? Object.keys(SIZES).join(",")).split(",");
 for (const name of variants) {
   const { w, h } = SIZES[name];
   const dir = join(FRAMES, name);

@@ -81,3 +81,21 @@ describe("frame timeline", () => {
     expect(paddingFor("left", "left", 1, 600, 800).bottom).toBe(400);
   });
 });
+
+import { FRAME_VARIANTS, variantsFor } from "@/lib/framePath";
+describe("frame variants", () => {
+  it("picks the set built for the screen's shape", () => {
+    const pick = (w: number, h: number) => variantsFor(w, h)[0];
+    expect(pick(390, 844)).toBe("phone");
+    expect(pick(820, 1180)).toBe("tablet-portrait");
+    expect(pick(1024, 768)).toBe("tablet-landscape");
+    expect(pick(1920, 1080)).toBe("desktop");
+    expect(pick(3440, 1440)).toBe("wide");
+  });
+  it("never offers a set framed for the wrong side of the text card", () => {
+    for (const [w, h] of [[390, 844], [820, 1180], [1366, 768], [2560, 1080]] as const) {
+      const first = variantsFor(w, h)[0]!;
+      expect(FRAME_VARIANTS[first].narrow).toBe(w < 961);
+    }
+  });
+});

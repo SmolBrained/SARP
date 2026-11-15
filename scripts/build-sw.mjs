@@ -20,7 +20,7 @@ for (const f of files) hash.update(f).update(readFileSync(join(OUT, f)));
 const version = hash.digest("hex").slice(0, 12);
 // pre-rendered globe pictures (npm run frames): cached as they are viewed, in a cache named after their manifests so a re-capture replaces them
 const fh = createHash("sha256");
-for (const f of walk(OUT).filter((p) => /frames[\\/](desktop|mobile)[\\/]manifest\.json$/.test(p)).sort()) fh.update(readFileSync(f));
+for (const f of walk(OUT).filter((p) => /frames[\\/][a-z-]+[\\/]manifest\.json$/.test(p)).sort()) fh.update(readFileSync(f));
 const framesKey = fh.digest("hex").slice(0, 10);
 const urls = files.map((f) => `${BASE}/${f.replace(/index\.html$/, "")}`);
 

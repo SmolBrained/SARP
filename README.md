@@ -190,7 +190,7 @@ The scrolling globe on the home page is the same flight for every visitor, so it
 
 ```bash
 npm i && npx playwright install chromium   # once
-npm run frames                              # build, then render public/frames/desktop and public/frames/mobile (a few minutes, needs internet)
+npm run frames                              # build, then render public/frames/{phone,tablet-portrait,tablet-landscape,desktop,wide} (a few minutes, needs internet)
 npm run deploy                              # publish
 ```
 
