@@ -15,6 +15,7 @@ import { HOTSPOTS, HOTSPOT_BY_ID, LIVE_LAYERS, LIVE_LAYER_IDS, type LiveLayerId 
 import { BANDS } from "@/lib/physics";
 import { SCENES, sample, sceneContaining, type Sample, type Scene, type SceneId } from "@/lib/scenes";
 import { findLatest, tileTemplate } from "@/lib/gibs";
+import { addOfflineLand } from "@/lib/offlineLand";
 import { DATA_ANCHOR, IMAGERY_TILES, PALETTE, buildStyle } from "@/lib/mapStyle";
 import { formatSigned } from "@/lib/format";
 import { closestProgress, nisarTrack } from "@/lib/orbit";
@@ -583,13 +584,3 @@ export default function MapView({ state, dispatch, pointer, sonifier, leftInset,
     </>
   );
 }
-
-/** Network down: draw the bundled Natural Earth land so the globe is never blank. */
-async function addOfflineLand(m: ML.Map): Promise<void> {
-  if (m.getSource("offline-land")) return;
-  const land = (await import("@/data/offline-basemap.json")).default as unknown as FeatureCollection;
-  m.addSource("offline-land", { type: "geojson", data: land });
-  m.addLayer({ id: "offline-water", type: "background", paint: { "background-color": PALETTE.water } }, "relief");
-  m.addLayer({ id: "offline-land", type: "fill", source: "offline-land", paint: { "fill-color": PALETTE.land, "fill-outline-color": PALETTE.line } }, "relief");
-}
-

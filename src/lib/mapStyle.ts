@@ -17,9 +17,9 @@ export const DATA_ANCHOR = "water";
 
 export const PALETTE = {
   space: "#04060d",
-  land: "#141d36",
-  landHi: "#1a2645",
-  water: "#03060d",
+  land: "#16213d",
+  landHi: "#22315a",
+  water: "#091632",
   line: "#1c2742",
   road: "rgba(150, 172, 220, 0.16)",
   roadMajor: "rgba(160, 182, 230, 0.28)",
@@ -58,7 +58,7 @@ export function buildStyle(): StyleSpecification {
       {
         id: "relief", type: "raster", source: "relief",
         paint: {
-          "raster-opacity": ["interpolate", ["linear"], ["zoom"], 2, 0.75, 6, 0.4, 9, 0.18, 11, 0],
+          "raster-opacity": ["interpolate", ["linear"], ["zoom"], 2, 0.8, 6, 0.5, 9, 0.28, 12, 0.12],
           // hue-shifted into the navy palette: terrain reads as relief, not as grey paper
           "raster-saturation": -0.45, "raster-hue-rotate": 200, "raster-brightness-min": 0.03, "raster-brightness-max": 0.42, "raster-contrast": 0.2, "raster-resampling": "linear",
         },
@@ -68,6 +68,26 @@ export function buildStyle(): StyleSpecification {
         id: "ice", type: "fill", source: "openmaptiles", "source-layer": "landcover",
         filter: ["match", ["get", "subclass"], ["ice_shelf", "glacier"], true, false],
         paint: { "fill-color": PALETTE.landHi, "fill-opacity": ["interpolate", ["linear"], ["zoom"], 2, 0.4, 8, 0.8] },
+      },
+      {
+        id: "cover-wood", type: "fill", source: "openmaptiles", "source-layer": "landcover",
+        filter: cls("wood", "grass", "farmland"),
+        paint: { "fill-color": "#12303a", "fill-opacity": ["interpolate", ["linear"], ["zoom"], 3, 0.25, 8, 0.55, 13, 0.4] },
+      },
+      {
+        id: "cover-wetland", type: "fill", source: "openmaptiles", "source-layer": "landcover",
+        filter: cls("wetland"),
+        paint: { "fill-color": "#143a4a", "fill-opacity": ["interpolate", ["linear"], ["zoom"], 4, 0.4, 10, 0.7] },
+      },
+      {
+        id: "cover-sand", type: "fill", source: "openmaptiles", "source-layer": "landcover",
+        filter: cls("sand"),
+        paint: { "fill-color": "#2b3252", "fill-opacity": 0.55 },
+      },
+      {
+        id: "urban", type: "fill", source: "openmaptiles", "source-layer": "landuse", minzoom: 6,
+        filter: cls("residential", "suburb", "commercial", "retail", "industrial"),
+        paint: { "fill-color": "#1f2b50", "fill-opacity": ["interpolate", ["linear"], ["zoom"], 6, 0.35, 12, 0.7, 15, 0.45] },
       },
       {
         id: "park", type: "fill", source: "openmaptiles", "source-layer": "landuse", minzoom: 9,
