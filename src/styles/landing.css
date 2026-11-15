@@ -8,8 +8,7 @@ html:has(.lp) { scroll-behavior: smooth; }
 .lp-globe .maplibregl-ctrl-bottom-right { z-index: 3; }
 .lp-shade { position: fixed; inset: 0; z-index: 1; pointer-events: none;
   background: radial-gradient(120% 90% at 50% 40%, rgba(4, 6, 13, 0) 30%, rgba(4, 6, 13, 0.62) 100%), linear-gradient(90deg, rgba(4, 6, 13, 0.5), rgba(4, 6, 13, 0) 55%); }
-.lp-globe .lp-pin { opacity: 0; transition: opacity 400ms; }
-.lp-globe:is([data-ch="top"], [data-ch="why"], [data-ch="world"], [data-ch="guide"]) .lp-pin { opacity: 1; }
+.lp-globe .lp-pin { opacity: 1; }
 .lp-pin { display: block; width: 10px; height: 10px; border-radius: 50%; background: var(--cyan); box-shadow: 0 0 0 4px rgba(0, 232, 255, 0.2); }
 
 /* capsule navigation */

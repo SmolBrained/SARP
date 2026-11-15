@@ -59,13 +59,13 @@ for (const name of variants) {
       const c = timeline.cams[idx];
       map.jumpTo({ center: c.center, zoom: c.zoom, pitch: c.pitch, bearing: c.bearing, padding: paddingFor(c.from, c.to, c.t, innerWidth, innerHeight) });
       window.__sarp.sweep(0);
-      document.querySelectorAll(".lp-pin").forEach((e) => { e.style.opacity = map.getZoom() < 5 ? "1" : "0"; });
     }, i);
     await page.evaluate((max) => new Promise((done) => {
       const m = window.__sarp.map; const t0 = Date.now();
       const check = () => { if (m.loaded() && m.areTilesLoaded()) setTimeout(done, 150); else if (Date.now() - t0 > max) done(); else setTimeout(check, 100); };
       m.triggerRepaint(); setTimeout(check, 200);
     }), WAIT);
+    await page.evaluate(() => window.__sarp.radar.settle()); // towers: footprints arrive with the tiles, so extrude them and wait for the redraw
     const shot = await page.locator(".lp-globe").screenshot({ type: "jpeg", quality: 88 });
     const file = `f${String(i).padStart(4, "0")}.${ext}`;
     await writeFile(join(dir, file), sharp ? await sharp(shot).webp({ quality: 72 }).toBuffer() : shot);

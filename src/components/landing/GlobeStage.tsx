@@ -14,6 +14,7 @@ import { closestProgress, nisarTrack } from "@/lib/orbit";
 import { offlineFallback } from "@/lib/offlineLand";
 import { HOTSPOTS } from "@/lib/content";
 import { paddingFor, timeline } from "@/lib/framePath";
+import { addRadar, type Radar } from "./radar";
 import { CAMERAS, TERRAIN_CHAPTERS, type Cam, type ChapterId } from "./chapters";
 
 const BASE = process.env.NEXT_PUBLIC_BASE_PATH ?? "";
@@ -42,7 +43,7 @@ export function GlobeStage({ chapter, onReady }: { chapter: ChapterId; onReady?:
   useEffect(() => { cur.current = chapter; }, [chapter]);
 
   useEffect(() => {
-    let disposed = false, raf = 0;
+    let disposed = false, raf = 0, radar: Radar | null = null;
     const capture = new URLSearchParams(window.location.search).has("capture"); // scripts/capture-frames.mjs drives the camera itself
     void (async () => {
       const lf = (await import(/* webpackIgnore: true */ /* turbopackIgnore: true */ `${BASE}${VENDOR.maplibre}`)) as typeof ML;
@@ -67,6 +68,7 @@ export function GlobeStage({ chapter, onReady }: { chapter: ChapterId; onReady?:
         m.addSource("track", { type: "geojson", lineMetrics: true, data: feat() });
         m.addLayer({ id: "track-swath", type: "line", source: "track", layout: { "line-cap": "round" }, paint: { "line-width": 34, "line-blur": 14, "line-gradient": gradient(0, 0.16) } });
         m.addLayer({ id: "track-line", type: "line", source: "track", layout: { "line-cap": "round" }, paint: { "line-width": 1.6, "line-gradient": gradient(0, 0.9) } });
+        radar = addRadar(m);
         const stars = (): void => document.documentElement.style.setProperty("--stars", m.getZoom() < 5.5 ? "1" : "0");
         m.on("zoomend", stars); stars();
         const pins: { id: string; el: HTMLElement; p: number }[] = [];
@@ -86,7 +88,7 @@ export function GlobeStage({ chapter, onReady }: { chapter: ChapterId; onReady?:
             m.setPaintProperty("track-line", "line-gradient", gradient(Math.min(1, p), 0.9 * fade));
             m.setPaintProperty("track-swath", "line-gradient", gradient(Math.min(1, p), 0.16 * fade));
           };
-          (window as unknown as { __sarp?: unknown }).__sarp = { map: m, timeline: timeline(), paddingFor, sweep };
+          (window as unknown as { __sarp?: unknown }).__sarp = { map: m, timeline: timeline(), paddingFor, sweep, radar };
           return;
         }
         if (reduced()) return;
@@ -114,7 +116,7 @@ export function GlobeStage({ chapter, onReady }: { chapter: ChapterId; onReady?:
         raf = requestAnimationFrame(frame);
       });
     })();
-    return () => { disposed = true; cancelAnimationFrame(raf); map.current?.remove(); map.current = null; };
+    return () => { disposed = true; cancelAnimationFrame(raf); radar?.dispose(); map.current?.remove(); map.current = null; };
   }, [onReady]);
 
   useEffect(() => {
