@@ -10,7 +10,7 @@ const at = (id: string, side: Side, dz = 0, pitch = 0, bearing = 0): Cam => {
   return { side, center: [h.center[1], h.center[0]], zoom: h.zoom - 1 + dz, pitch, bearing };
 };
 
-export const CHAPTER_IDS = ["top", "why", "math", "miami", "everglades", "iceland", "world", "hear", "guide", "honest"] as const;
+export const CHAPTER_IDS = ["top", "why", "math", "miami", "everglades", "iceland", "world", "hear", "act", "guide", "honest"] as const;
 export type ChapterId = (typeof CHAPTER_IDS)[number];
 
 export const CAMERAS: Readonly<Record<ChapterId, Cam>> = {
@@ -22,6 +22,7 @@ export const CAMERAS: Readonly<Record<ChapterId, Cam>> = {
   iceland: at("iceland", "left", -0.4, 52, -16),
   world: { side: "right", center: [-75, -20], zoom: 1.9, pitch: 0, bearing: 0 },
   hear: at("iceland", "right", -1.2, 30, 40),
+  act: at("miami-coast", "center", -2.6, 40, 20),
   guide: { side: "center", center: [-50, 25], zoom: 1.5, pitch: 0, bearing: 0 },
   honest: { side: "left", center: [-80.12, 25.9], zoom: 9.2, pitch: 40, bearing: 20 },
 };

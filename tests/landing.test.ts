@@ -34,3 +34,13 @@ describe("tile prefetch maths", () => {
     expect(placeTiles(25.76, -80.19, 12, 12)).toHaveLength(1);
   });
 });
+
+import { TIERS, tierFor } from "@/lib/triad";
+describe("triage tiers", () => {
+  it("classifies by speed, sign ignored", () => {
+    expect(tierFor(0.4).id).toBe("t1");
+    expect(tierFor(-1.7).id).toBe("t2");
+    expect(tierFor(2.5).id).toBe("t3");
+    expect(TIERS).toHaveLength(3);
+  });
+});

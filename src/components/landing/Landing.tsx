@@ -4,12 +4,14 @@
 import { useEffect, useRef, useState } from "react";
 import "@/styles/landing.css";
 import eq from "@/data/equations.svg.json";
+import { ACTIONS, STEPS, TIERS } from "@/lib/triad";
 import { prefetchTourTiles } from "@/lib/prefetch";
 import { Icon } from "../Icon";
 import { Tag } from "../Panel";
 import { viewerHref, type ChapterId } from "./chapters";
 import { CapsuleNav } from "./CapsuleNav";
 import { FringeDemo } from "./FringeDemo";
+import { HearButtons } from "./HearButtons";
 import { GlobeStage } from "./GlobeStage";
 
 const BASE = process.env.NEXT_PUBLIC_BASE_PATH ?? "";
@@ -130,7 +132,28 @@ export default function Landing() {
           <h2 id="hear-h">Listen to the ground.</h2>
           <p>Motion away from the satellite lowers the pitch to 55 Hz, motion toward it raises it to 440 Hz, every fringe you cross clicks, and noisy phase adds hiss. Move across a volcano and you can hear where it lifts.</p>
           <div className="lp-pitch" aria-hidden="true"><i style={{ height: "28%" }} /><i style={{ height: "44%" }} /><i style={{ height: "60%" }} /><i style={{ height: "78%" }} /><i style={{ height: "100%" }} /></div>
-          <p className="lp-note">Try it right above, or turn on <b>Sound</b> in the viewer.</p>
+          <HearButtons />
+          <p className="lp-note">Or turn on <b>Sound</b> in the viewer. On a phone, tap the map to hear that spot.</p>
+        </div>
+      </section>
+
+      <section id="act" className="lp-sec lp-wide" data-chapter="act" aria-labelledby="act-h">
+        <div className="lp-card glass">
+          <p className="kicker">Beyond the map</p>
+          <h2 id="act-h">Detect, predict, act.</h2>
+          <p>A map of where the ground already moved is only the start. The goal is to find the places that are moving now and get them to the people who can fix them.</p>
+          <ol className="lp-triad">
+            {STEPS.map((s, i) => <li key={s.id}><span>{i + 1}</span><div><b>{s.title}</b><p>{s.text}</p></div></li>)}
+          </ol>
+          <h3 className="lp-sub">Triage tiers <Tag status="INFO" /></h3>
+          <ul className="lp-tiers">
+            {TIERS.map((t) => <li key={t.id} data-tier={t.id}><b>{t.name}</b><em>{t.range}</em><p>{t.response}</p></li>)}
+          </ul>
+          <h3 className="lp-sub">What people could do</h3>
+          <ul className="lp-acts">
+            {ACTIONS.map((a) => <li key={a.id}><small>{a.where}</small><b>{a.title}</b><p>{a.text}</p></li>)}
+          </ul>
+          <p className="lp-note">The tiers are a proposal for discussion, not an engineering standard. At Surfside, radar saw no settlement before the 2021 collapse, so SARPulse is a screening aid for inspectors, never a substitute for them.</p>
         </div>
       </section>
 
@@ -143,7 +166,7 @@ export default function Landing() {
             <li><span>2</span><div><b>Pick a place</b><p>The place menu lists every site. Each shows a live thumbnail of its radar field.</p></div></li>
             <li><span>3</span><div><b>Play and scrub</b><p>Drag the timeline. Rings multiply as the ground moves. Orange markers flag real events.</p></div></li>
             <li><span>4</span><div><b>Change the radar</b><p>Layers switches band (L, S, C), basemap and NASA live layers. Compare with photo splits optical against radar.</p></div></li>
-            <li><span>5</span><div><b>Turn Sound on</b><p>Hover or drag across the map to hear the motion under your cursor.</p></div></li>
+            <li><span>5</span><div><b>Turn Sound on</b><p>On a computer, hover across the map. On a phone, tap any spot to hear it.</p></div></li>
           </ol>
           <div className="lp-cta"><a className="btn primary lg" href={`${BASE}/explore/`}>Open the viewer <Icon name="arrow-right" /></a></div>
         </div>

@@ -1,5 +1,6 @@
 "use client";
 /** Place card (desktop left pane, phone sheet body) and the guided-tour caption. */
+import { ACTIONS } from "@/lib/triad";
 import { memo, useEffect, useMemo, useRef, useState, type Dispatch } from "react";
 import { HOTSPOT_BY_ID, REFS, type Status } from "@/lib/content";
 import { BANDS, type BandId } from "@/lib/physics";
@@ -94,6 +95,7 @@ export const PlaceBody = memo(function PlaceBody({ place, band, t, onMelody, com
     return { series, labels: s1.map((p) => p.label), unit };
   }, [sc, h, b]);
   const metrics = metricsFor(h, sc, b, t);
+  const acts = ACTIONS.filter((a) => (h.group === "miami" ? a.id !== "fire" : h.group === "everglades" ? a.id === "fire" : false));
   return (
     <>
       {!compact && (
@@ -128,6 +130,9 @@ export const PlaceBody = memo(function PlaceBody({ place, band, t, onMelody, com
           <>
             <p>{h.body}</p>
             <p className="radar-note"><b>How radar sees it.</b> {h.radarNote}</p>
+            {acts.length > 0 && (
+              <div className="radar-note"><b>What could be done.</b>{" "}{acts.map((a) => `${a.title}: ${a.text}`).join(" ")} <i>A proposal, not a measured result.</i></div>
+            )}
             <div className="sources">
               <h3>Sources</h3>
               <ol>{h.refs.map((k) => <li key={k}><a href={REFS[k].url} target="_blank" rel="noopener noreferrer">{REFS[k].short}</a></li>)}</ol>

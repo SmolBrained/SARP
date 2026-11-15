@@ -4,7 +4,7 @@
 import type { ChapterId } from "./chapters";
 
 const BASE = process.env.NEXT_PUBLIC_BASE_PATH ?? "";
-const LINKS: ReadonlyArray<readonly [ChapterId, string]> = [["why", "Why radar"], ["math", "The idea"], ["miami", "Places"], ["hear", "Hear it"], ["guide", "How to use it"]];
+const LINKS: ReadonlyArray<readonly [ChapterId, string]> = [["why", "Why radar"], ["math", "The idea"], ["miami", "Places"], ["hear", "Hear it"], ["act", "Act"], ["guide", "How to use it"]];
 
 export function CapsuleNav({ shown, active }: { shown: boolean; active: ChapterId }) {
   const group = (id: ChapterId) => (id === "everglades" || id === "iceland" || id === "world" ? "miami" : id);
