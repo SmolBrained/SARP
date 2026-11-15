@@ -66,7 +66,7 @@ for (const name of variants) {
       m.triggerRepaint(); setTimeout(check, 200);
     }), WAIT);
     await page.evaluate(() => window.__sarp.radar.settle()); // towers: footprints arrive with the tiles, so extrude them and wait for the redraw
-    const shot = await page.locator(".lp-globe").screenshot({ type: "jpeg", quality: 88 });
+    const shot = await page.screenshot({ type: "jpeg", quality: 88, clip: { x: 0, y: 0, width: w, height: h }, timeout: 120000 });
     const file = `f${String(i).padStart(4, "0")}.${ext}`;
     await writeFile(join(dir, file), sharp ? await sharp(shot).webp({ quality: 72 }).toBuffer() : shot);
     if (i % 10 === 0) process.stdout.write(`  ${i}/${total}\r`);
@@ -82,7 +82,7 @@ for (const name of variants) {
   for (let k = 0; k < LOOP; k++) {
     await page.evaluate((p) => window.__sarp.sweep(p), (k / (LOOP - 1)) * 1.22);
     await page.waitForTimeout(120);
-    const shot = await page.locator(".lp-globe").screenshot({ type: "jpeg", quality: 88 });
+    const shot = await page.screenshot({ type: "jpeg", quality: 88, clip: { x: 0, y: 0, width: w, height: h }, timeout: 120000 });
     await writeFile(join(dir, `l${String(k).padStart(4, "0")}.${ext}`), sharp ? await sharp(shot).webp({ quality: 72 }).toBuffer() : shot);
   }
   await writeFile(join(dir, "manifest.json"), JSON.stringify({ v: 1, built: Date.now(), w, h, ext, count: total, loop: LOOP, anchors }));
