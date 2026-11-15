@@ -5,7 +5,7 @@ import "./globals.css";
 const BASE = process.env.NEXT_PUBLIC_BASE_PATH ?? "";
 
 export const metadata: Metadata = {
-  metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL ?? "https://smolbrained.github.io/SARP/"),
+  metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL ?? "https://sarpulse.org/"),
   title: "SARPulse · Hear the Earth move with NASA-ISRO NISAR radar",
   description:
     "Live NASA-ISRO NISAR and OPERA radar imagery, physics-based interferograms and sonified ground motion, from Miami's high-rises to the Everglades. NASA Space Apps Challenge 2026: Dancing with the SARs.",
